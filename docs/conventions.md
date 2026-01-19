@@ -138,6 +138,8 @@ refactor: simplify user domain logic
 
 ### Backend (Python)
 
+**최상위 패키지:** `app` (FastAPI 표준). Import: `from app.shared.uid import ...`
+
 **포맷터:**
 - `ruff format` (Black 호환)
 

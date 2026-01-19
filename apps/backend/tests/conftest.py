@@ -13,9 +13,9 @@ def client() -> TestClient:
 
 
 @pytest.fixture
-def async_client():
+async def async_client():
     """비동기 테스트를 위한 AsyncClient (필요시 사용)"""
     from httpx import AsyncClient
-    
+
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
