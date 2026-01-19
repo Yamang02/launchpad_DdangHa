@@ -23,19 +23,19 @@
 
 #### 2.1.1 UID (`app/shared/uid.py`)
 
-- [ ] **RED** `tests/unit/shared/test_uid.py`
-  - [ ] `generate_uid(prefix)` → `{prefix}{ULID 26자}` 형식, prefix 포함
-  - [ ] `generate_user_uid()` → `"usr_"` prefix
-  - [ ] ULID 26자 정규 `[0-9A-HJKMNP-TV-Z]{26}`
-- [ ] **GREEN** `app/shared/uid.py` + `python-ulid` 의존성
+- [x] **RED** `tests/unit/shared/test_uid.py`
+  - [x] `generate_uid(prefix)` → `{prefix}{ULID 26자}` 형식, prefix 포함
+  - [x] `generate_user_uid()` → `"usr_"` prefix
+  - [x] ULID 26자 정규 `[0-9A-HJKMNP-TV-Z]{26}`
+- [x] **GREEN** `app/shared/uid.py` + `python-ulid` 의존성
 - [ ] **Refactor** (필요 시)
 
 #### 2.1.2 API 공통 Response 스키마 (`app/shared/schemas/response.py`)
 
-- [ ] **RED** `tests/unit/shared/test_response_schemas.py`
-  - [ ] `ApiSuccessResponse[data].model_dump()` → `{"success": True, "data": data}`
-  - [ ] `ApiErrorResponse(error=...).model_dump()` → `{"success": False, "error": {code, message, details?}}`
-- [ ] **GREEN** `app/shared/schemas/response.py` (Pydantic)
+- [x] **RED** `tests/unit/shared/test_response_schemas.py`
+  - [x] `ApiSuccessResponse[data].model_dump()` → `{"success": True, "data": data}`
+  - [x] `ApiErrorResponse(error=...).model_dump()` → `{"success": False, "error": {code, message, details?}}`
+- [x] **GREEN** `app/shared/schemas/response.py` (Pydantic)
 - [ ] **Refactor** (필요 시)
 
 #### 2.1.3 API 표준 형식 통합 검증 (라우트 + 에러 형식)

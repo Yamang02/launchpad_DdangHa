@@ -12,10 +12,10 @@
 
 #### Phase 1: 공통 모듈 (Shared)
 
-- [ ] `apps/backend/app/shared/__init__.py` 생성
-- [ ] `apps/backend/app/shared/uid.py` - ULID 기반 UID 생성
-  - [ ] `generate_uid(prefix: str) -> str`
-  - [ ] `generate_user_uid() -> str` (prefix: "usr_")
+- [x] `apps/backend/app/shared/__init__.py` 생성
+- [x] `apps/backend/app/shared/uid.py` - ULID 기반 UID 생성 (000-foundation)
+  - [x] `generate_uid(prefix: str) -> str`
+  - [x] `generate_user_uid() -> str` (prefix: "usr_")
 - [ ] `apps/backend/app/shared/security.py` - 비밀번호 해싱
   - [ ] `hash_password(password: str) -> str`
   - [ ] `verify_password(plain: str, hashed: str) -> bool`
@@ -94,10 +94,10 @@
 #### Unit Tests
 
 - [ ] `apps/backend/tests/unit/__init__.py`
-- [ ] `apps/backend/tests/unit/shared/__init__.py`
-- [ ] `apps/backend/tests/unit/shared/test_uid.py`
-  - [ ] ULID 형식 검증 테스트
-  - [ ] prefix 포함 테스트
+- [x] `apps/backend/tests/unit/shared/__init__.py`
+- [x] `apps/backend/tests/unit/shared/test_uid.py` (000-foundation)
+  - [x] ULID 형식 검증 테스트
+  - [x] prefix 포함 테스트
 - [ ] `apps/backend/tests/unit/shared/test_security.py`
   - [ ] 비밀번호 해싱 테스트
   - [ ] 비밀번호 검증 테스트
