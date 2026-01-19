@@ -72,6 +72,25 @@ yarn test:backend
 
 ---
 
+## 영역별 Skills 참조
+
+프로젝트에서 각 영역을 개발할 때 `.claude/skills/` 아래의 **Skills**를 참고하세요. AI 코딩 도구 사용 시 해당 영역의 skill을 로드해 일관된 품질과 베스트 프랙티스를 적용할 수 있습니다.
+
+| 영역 | Skill | 경로 | 사용 시점 |
+|------|-------|------|-----------|
+| **Frontend (기능/구조)** | senior-frontend | `.claude/skills/senior-frontend/SKILL.md` | React/Next.js 기능 구현, 성능 최적화, 번들 분석, 컴포넌트 스캐폴딩, 프론트엔드 코드 리뷰 |
+| **Frontend (UI/디자인)** | frontend-design | `.claude/skills/frontend-design/SKILL.md` | 페이지·컴포넌트 UI 구성, 비주얼·타이포·컬러·모션 디자인, 제네릭 AI 스타일 회피, 프로덕션 수준 인터페이스 |
+| **Backend** | senior-backend | `.claude/skills/senior-backend/SKILL.md` | API 설계·구현, DB 최적화·마이그레이션, 보안·인증/인가, 비즈니스 로직, 백엔드 코드 리뷰 |
+
+**참고 문서 (각 skill 내 `references/`):**
+
+- **senior-frontend**: `react_patterns.md`, `nextjs_optimization_guide.md`, `frontend_best_practices.md`
+- **senior-backend**: `api_design_patterns.md`, `database_optimization_guide.md`, `backend_security_practices.md`
+
+> **사용법**: 해당 영역 작업 시 AI에게 “`.claude/skills/senior-frontend/SKILL.md`(또는 해당 skill)를 참고해서 ~”처럼 skill 경로를 명시하면, 스크립트·레퍼런스·워크플로를 활용한 개발이 수월해집니다.
+
+---
+
 ## AI Assistance Policy
 
 When using AI coding tools:
@@ -80,4 +99,5 @@ When using AI coding tools:
 - Always reference the relevant spec
 - Always reference `/docs/conventions.md` for coding standards
 - Always reference `/docs/tdd-guide.md` for TDD practices
+- **영역별로 `.claude/skills/` 내 해당 skill을 참고** (Frontend: senior-frontend, frontend-design / Backend: senior-backend)
 - Do not invent requirements

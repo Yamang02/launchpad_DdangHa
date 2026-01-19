@@ -436,6 +436,152 @@ try {
 
 ---
 
+## 시간 (Datetime) 컨벤션
+
+### 원칙
+
+> **"저장은 UTC, 표시는 로컬"**
+
+| 상황 | 포맷 | 예시 |
+|------|------|------|
+| DB 저장 | UTC (TIMESTAMP WITH TIME ZONE) | `2025-01-19T15:30:00Z` |
+| API 요청/응답 | ISO 8601 (UTC) | `2025-01-19T15:30:00Z` |
+| 로그 | ISO 8601 (UTC) | `2025-01-19T15:30:00.123Z` |
+| 사용자 표시 | KST (Asia/Seoul) | `2025-01-20 00:30:00` |
+
+### Backend (Python)
+
+```python
+from datetime import datetime, timezone
+
+# 현재 시각 (UTC)
+now_utc = datetime.now(timezone.utc)
+
+# DB 저장 시 항상 UTC
+user.created_at = datetime.now(timezone.utc)
+
+# API 응답 시 ISO 8601 형식
+response = {
+    "created_at": user.created_at.isoformat()  # "2025-01-19T15:30:00+00:00"
+}
+```
+
+**금지 사항:**
+```python
+# Bad - 타임존 없는 datetime
+datetime.now()  # naive datetime, 사용 금지!
+datetime.utcnow()  # deprecated in Python 3.12+
+
+# Good - 항상 타임존 명시
+datetime.now(timezone.utc)
+```
+
+### Frontend (TypeScript)
+
+```typescript
+// API 응답의 UTC 시간을 KST로 변환하여 표시
+const formatToKST = (utcString: string): string => {
+  return new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(utcString));
+};
+
+// 예: "2025-01-19T15:30:00Z" → "2025. 01. 20. 00:30"
+```
+
+### Database (PostgreSQL)
+
+```sql
+-- 컬럼 정의: 항상 TIMESTAMP WITH TIME ZONE 사용
+created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+
+-- DB는 UTC로 저장하되, 필요시 변환
+SELECT created_at AT TIME ZONE 'Asia/Seoul' AS created_at_kst FROM users;
+```
+
+### 타임존 참조
+
+| 약어 | 이름 | UTC 오프셋 | 비고 |
+|------|------|-----------|------|
+| UTC | Coordinated Universal Time | +00:00 | 기준 시간 |
+| KST | Korea Standard Time | +09:00 | Asia/Seoul |
+
+**참고:** IANA 타임존 데이터베이스의 `Asia/Seoul` 사용 권장 (DST 변경 대응)
+
+---
+
+## ID 생성 전략
+
+### 원칙: DB ID와 Business ID 분리
+
+| 구분 | DB ID | Business ID (uid) |
+|------|-------|-------------------|
+| 용도 | 내부 참조, FK 관계 | 외부 노출, API 응답 |
+| 형식 | `BIGSERIAL` (auto increment) | `ULID` with prefix |
+| 노출 | 절대 외부 노출 금지 | URL, 응답에서 사용 |
+| 예시 | `id = 1` | `uid = "usr_01ARZ3NDEKTSV4RRFFQ69G5FAV"` |
+
+### ULID (Universally Unique Lexicographically Sortable Identifier)
+
+**선택 이유:**
+- 타임스탬프 기반으로 **시간순 정렬 가능** (인덱싱 효율)
+- 분산 환경에서 **머신 ID 조정 불필요** (Lambda 환경에 적합)
+- 26자 문자열로 **URL-safe** (Crockford's Base32)
+- UUID보다 짧고 가독성 좋음
+
+**구조:**
+```
+ 01ARZ3NDEKTSV4RRFFQ69G5FAV
+ |----------|------------|
+ Timestamp   Randomness
+ (48 bits)   (80 bits)
+ 10자         16자
+```
+
+### Prefix 규칙
+
+각 도메인의 Business ID는 prefix로 타입을 구분합니다:
+
+| 도메인 | Prefix | 예시 |
+|--------|--------|------|
+| User | `usr_` | `usr_01ARZ3NDEKTSV4RRFFQ69G5FAV` |
+| RefreshToken | `rtk_` | `rtk_01ARZ3NDEKTSV4RRFFQ69G5FAV` |
+| Payment | `pay_` | `pay_01ARZ3NDEKTSV4RRFFQ69G5FAV` |
+| Order | `ord_` | `ord_01ARZ3NDEKTSV4RRFFQ69G5FAV` |
+
+### 사용 예시 (Python)
+
+```python
+# backend/app/shared/uid.py
+import ulid
+
+def generate_uid(prefix: str) -> str:
+    """prefix가 붙은 ULID 생성"""
+    return f"{prefix}{ulid.new().str}"
+
+# 사용
+user_uid = generate_uid("usr_")  # "usr_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+token_uid = generate_uid("rtk_")  # "rtk_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+```
+
+### ID 사용 가이드라인
+
+| 상황 | 사용할 ID |
+|------|-----------|
+| API 요청/응답 | `uid` (Business ID) |
+| URL 경로 파라미터 | `uid` (Business ID) |
+| JWT 토큰 payload | `uid` (Business ID) |
+| DB 조인, FK 관계 | `id` (DB ID) |
+| 내부 로깅 (민감) | `id` (DB ID) |
+| 외부 로깅, 모니터링 | `uid` (Business ID) |
+
+---
+
 ## 로깅
 
 ### Backend
