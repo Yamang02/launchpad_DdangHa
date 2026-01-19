@@ -50,6 +50,28 @@
 
 ---
 
+## Testing & TDD
+
+프로젝트에서는 **TDD (Test-Driven Development)** 연습을 권장합니다.
+
+**TDD 가이드:**
+- 상세한 TDD 워크플로우는 `/docs/tdd-guide.md`를 참고하세요
+- **Frontend**: Playwright를 이용한 E2E 테스트
+- **Backend**: pytest를 이용한 API 테스트
+- 단계별 연습 시나리오 제공
+
+**빠른 시작:**
+```bash
+# Frontend E2E 테스트
+yarn test:e2e
+yarn test:e2e:ui
+
+# Backend 테스트
+yarn test:backend
+```
+
+---
+
 ## AI Assistance Policy
 
 When using AI coding tools:
@@ -57,4 +79,5 @@ When using AI coding tools:
 - Always reference `DevelopmentGuide.md`
 - Always reference the relevant spec
 - Always reference `/docs/conventions.md` for coding standards
+- Always reference `/docs/tdd-guide.md` for TDD practices
 - Do not invent requirements

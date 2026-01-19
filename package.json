@@ -12,7 +12,10 @@
     "dev:frontend": "yarn workspace @ddangha/frontend dev",
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",
-    "type-check": "yarn workspaces run type-check"
+    "type-check": "yarn workspaces run type-check",
+    "test:e2e": "yarn workspace @ddangha/frontend test:e2e",
+    "test:e2e:ui": "yarn workspace @ddangha/frontend test:e2e:ui",
+    "test:backend": "yarn workspace @ddangha/backend test"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

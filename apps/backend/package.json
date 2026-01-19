@@ -8,7 +8,13 @@
     "start": "uvicorn main:app --host 0.0.0.0 --port 8000",
     "lint": "ruff check .",
     "format": "ruff format .",
-    "type-check": "mypy ."
+    "type-check": "mypy .",
+    "test": "pytest",
+    "test:watch": "pytest --watch",
+    "test:cov": "pytest --cov=. --cov-report=html --cov-report=term",
+    "test:verbose": "pytest -v",
+    "test:unit": "pytest -m unit",
+    "test:integration": "pytest -m integration"
   },
   "dependencies": {}
 }
