@@ -104,7 +104,7 @@
 
 ---
 
-### Monorepo (pnpm)
+### Monorepo (yarn workspaces)
 
 **선택 이유**
 

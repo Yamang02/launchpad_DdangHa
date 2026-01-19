@@ -1,0 +1,24 @@
+{
+  "name": "launchpad-ddangha",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spec-driven monorepo for rapid service building",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "yarn workspace @ddangha/backend dev",
+    "dev:frontend": "yarn workspace @ddangha/frontend dev",
+    "build": "yarn workspaces run build",
+    "lint": "yarn workspaces run lint",
+    "type-check": "yarn workspaces run type-check"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  }
+}

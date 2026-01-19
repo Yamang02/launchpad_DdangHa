@@ -30,10 +30,31 @@
 
 ---
 
+## Coding Conventions
+
+프로젝트의 개발 컨벤션은 `/docs/conventions.md`에 정의되어 있습니다.
+
+**주요 컨벤션 영역:**
+- **Git 컨벤션**: 브랜치 전략, 커밋 메시지 형식
+- **네이밍 컨벤션**: Backend (Python), Frontend (TypeScript/React), Database, API
+- **코드 스타일**: 포맷터/린터 설정, 타입 힌팅, Docstring 규칙
+- **파일/디렉토리 구조**: Backend 헥사고널 아키텍처, Frontend FSD 구조
+- **API 컨벤션**: RESTful 설계, 응답 형식, HTTP 상태 코드
+- **에러 처리**: 예외 계층 구조, 에러 핸들링 패턴
+- **문서화**: 코드 주석 원칙, API 문서화
+- **테스트**: 테스트 작성 가이드라인
+- **환경 변수**: 명명 규칙, 관리 방법
+- **로깅**: 로깅 레벨 및 형식
+
+> **참고**: 개발 시 반드시 `/docs/conventions.md`를 확인하고 준수하세요.
+
+---
+
 ## AI Assistance Policy
 
 When using AI coding tools:
 
 - Always reference `DevelopmentGuide.md`
 - Always reference the relevant spec
+- Always reference `/docs/conventions.md` for coding standards
 - Do not invent requirements
