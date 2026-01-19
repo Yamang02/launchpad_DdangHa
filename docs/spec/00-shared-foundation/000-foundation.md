@@ -40,10 +40,10 @@
 
 #### 2.1.3 API 표준 형식 통합 검증 (라우트 + 에러 형식)
 
-- [ ] **RED** `tests/integration/test_api_standard_response.py`
-  - [ ] `GET /api/v1/_spec/ok` → 200, `success` True, `data` 존재
-  - [ ] `GET /api/v1/_spec/error` → 400, `success` False, `error.code`, `error.message`
-- [ ] **GREEN** `_spec` 라우터, `main`에 등록, 스키마/에러핸들러 연동
+- [x] **RED** `tests/integration/test_api_standard_response.py`
+  - [x] `GET /api/v1/_spec/ok` → 200, `success` True, `data` 존재
+  - [x] `GET /api/v1/_spec/error` → 400, `success` False, `error.code`, `error.message`
+- [x] **GREEN** `_spec` 라우터, `main`에 등록, 스키마/에러핸들러 연동
 - [ ] **Refactor** (필요 시)
 
 ---
@@ -52,24 +52,24 @@
 
 #### 2.2.1 시간 유틸 (`shared/lib/date.ts`)
 
-- [ ] **RED** `src/shared/lib/date.test.ts`
-  - [ ] `formatToKST("2025-01-19T15:30:00Z")` → KST `"2025. 01. 20. 00:30"` 형식
-  - [ ] `formatToKST("2025-01-19T15:30:00.000Z")` → 동일
-- [ ] **GREEN** `src/shared/lib/date.ts` (Intl + `Asia/Seoul`)
+- [x] **RED** `src/shared/lib/date.test.ts`
+  - [x] `formatToKST("2025-01-19T15:30:00Z")` → KST `"2025. 01. 20. 00:30"` 형식
+  - [x] `formatToKST("2025-01-19T15:30:00.000Z")` → 동일
+- [x] **GREEN** `src/shared/lib/date.ts` (Intl + `Asia/Seoul`)
 - [ ] **Refactor** (필요 시)
 
 #### 2.2.2 API 에러 변환 (`shared/api/errors.ts`)
 
-- [ ] **RED** `src/shared/api/errors.test.ts`
-  - [ ] `toApiError(axiosError)` when `response.data.error` 있음 → `{ code, message }` (및 `details`)
-  - [ ] `toApiError(axiosError)` when `response` 없음 → `{ code: "UNKNOWN_ERROR", message: "알 수 없는 오류..." }`
-- [ ] **GREEN** `src/shared/api/errors.ts`, `shared/types/api.ts` (`ApiError`)
+- [x] **RED** `src/shared/api/errors.test.ts`
+  - [x] `toApiError(axiosError)` when `response.data.error` 있음 → `{ code, message }` (및 `details`)
+  - [x] `toApiError(axiosError)` when `response` 없음 → `{ code: "UNKNOWN_ERROR", message: "알 수 없는 오류..." }`
+- [x] **GREEN** `src/shared/api/errors.ts`, `shared/types/api.ts` (`ApiError`)
 - [ ] **Refactor** (필요 시)
 
 #### 2.2.3 API 클라이언트 / 타입 (Green 시 client에 toApiError 연동)
 
-- [ ] **GREEN** `src/shared/api/client.ts` (baseURL, 에러 인터셉터에서 `toApiError` 사용)
-- [ ] **GREEN** `src/shared/types/api.ts` (`ApiResponse<T>`, `ApiError`)
+- [x] **GREEN** `src/shared/types/api.ts` (`ApiResponse<T>`, `ApiError`)
+- [ ] **GREEN** `src/shared/api/client.ts` (baseURL, 에러 인터셉터에서 `toApiError` 사용) — 001-signup 첫 API 연동 시 구현
 
 ---
 
