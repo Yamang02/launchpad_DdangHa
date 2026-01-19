@@ -9,12 +9,12 @@
     "lint": "ruff check .",
     "format": "ruff format .",
     "type-check": "mypy .",
-    "test": "pytest",
-    "test:watch": "pytest --watch",
-    "test:cov": "pytest --cov=. --cov-report=html --cov-report=term",
-    "test:verbose": "pytest -v",
-    "test:unit": "pytest -m unit",
-    "test:integration": "pytest -m integration"
+    "test": "python -m pytest",
+    "test:watch": "python -m pytest --watch",
+    "test:cov": "python -m pytest --cov=. --cov-report=html --cov-report=term",
+    "test:verbose": "python -m pytest -v",
+    "test:unit": "python -m pytest -m unit",
+    "test:integration": "python -m pytest -m integration"
   },
   "dependencies": {}
 }
