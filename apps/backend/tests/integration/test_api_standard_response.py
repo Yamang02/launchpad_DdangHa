@@ -1,5 +1,5 @@
 """
-API 표준 응답 형식 통합 테스트 (TDD RED)
+API 표준 응답 형식 통합 테스트
 spec: 000-foundation — success/data, success/error
 """
 import pytest

@@ -1,5 +1,5 @@
 """
-API 공통 Response 스키마 테스트 (TDD RED)
+API 공통 Response 스키마 테스트
 spec: 000-foundation
 """
 import pytest

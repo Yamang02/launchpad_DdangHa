@@ -1,5 +1,5 @@
 """
-UID 생성 유틸리티 테스트 (TDD RED)
+UID 생성 유틸리티 테스트
 spec: 000-foundation
 """
 import re

@@ -1,5 +1,5 @@
 /**
- * formatToKST 테스트 (TDD RED)
+ * formatToKST 테스트
  * spec: 000-foundation
  */
 import { describe, expect, it } from 'vitest'
