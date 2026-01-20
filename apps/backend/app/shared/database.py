@@ -3,7 +3,14 @@
 import os
 from collections.abc import AsyncGenerator
 
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+
+class Base(DeclarativeBase):
+    """SQLAlchemy ORM Declarative Base"""
+
+    pass
 
 # postgresql:// -> postgresql+asyncpg:// (async SQLAlchemy)
 _url = os.getenv("DATABASE_URL", "").strip()

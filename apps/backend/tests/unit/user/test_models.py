@@ -2,7 +2,6 @@
 UserModel (SQLAlchemy ORM) 단위 테스트
 spec: 001-signup-design — user/infrastructure/models.py UserModel
 """
-import pytest
 
 from app.user.infrastructure.models import UserModel
 
