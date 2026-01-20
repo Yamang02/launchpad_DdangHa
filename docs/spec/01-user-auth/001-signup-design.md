@@ -16,16 +16,17 @@
 - [x] `apps/backend/app/shared/uid.py` - ULID 기반 UID 생성 (000-foundation)
   - [x] `generate_uid(prefix: str) -> str`
   - [x] `generate_user_uid() -> str` (prefix: "usr_")
-- [ ] `apps/backend/app/shared/security.py` - 비밀번호 해싱
-  - [ ] `hash_password(password: str) -> str`
-  - [ ] `verify_password(plain: str, hashed: str) -> bool`
-- [ ] `apps/backend/app/shared/exceptions.py` - 도메인 예외
-  - [ ] `DomainError` (base)
-  - [ ] `ValidationError`
-  - [ ] `DuplicateEmailError`
-- [ ] `apps/backend/app/shared/database.py` - DB 연결 설정
-  - [ ] `get_db()` async generator
-  - [ ] SQLAlchemy async engine 설정
+- [x] `apps/backend/app/shared/security.py` - 비밀번호 해싱
+  - [x] `hash_password(password: str) -> str`
+  - [x] `verify_password(plain: str, hashed: str) -> bool`
+- [x] `apps/backend/app/shared/exceptions.py` - 도메인 예외
+  - [x] `DomainError` (base)
+  - [x] `ValidationError`
+  - [x] `DuplicateEmailError`
+- [x] `apps/backend/app/shared/database.py` - DB 연결 설정
+  - [x] `get_db()` async generator
+  - [x] SQLAlchemy async engine 설정
+- [x] `docs/technical/async-database.md` - postgresql+asyncpg, get_db 기술 문서
 
 #### Phase 2: User 도메인
 
@@ -98,9 +99,13 @@
 - [x] `apps/backend/tests/unit/shared/test_uid.py` (000-foundation)
   - [x] ULID 형식 검증 테스트
   - [x] prefix 포함 테스트
-- [ ] `apps/backend/tests/unit/shared/test_security.py`
-  - [ ] 비밀번호 해싱 테스트
-  - [ ] 비밀번호 검증 테스트
+- [x] `apps/backend/tests/unit/shared/test_security.py`
+  - [x] 비밀번호 해싱 테스트
+  - [x] 비밀번호 검증 테스트
+- [x] `apps/backend/tests/unit/shared/test_exceptions.py`
+  - [x] DomainError, ValidationError, DuplicateEmailError 테스트
+- [x] `apps/backend/tests/unit/shared/test_database.py`
+  - [x] get_db async generator 테스트
 - [ ] `apps/backend/tests/unit/auth/__init__.py`
 - [ ] `apps/backend/tests/unit/auth/test_dtos.py`
   - [ ] SignupRequest 유효성 검증 테스트
