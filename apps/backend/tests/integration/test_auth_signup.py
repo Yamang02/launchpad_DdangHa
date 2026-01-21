@@ -11,7 +11,9 @@ from app.shared.database import async_session_maker
 from app.user.infrastructure.models import UserModel
 from main import app
 
-# DATABASE_URL 필요 (로컬: postgres, docker: postgres 서비스). DB 없으면 스킵 가능.
+pytestmark = pytest.mark.integration
+
+# DATABASE_URL: conftest에서 postgres-test(5434/ddangha_test)로 설정. docker compose up 또는 test:infra:up 필요.
 
 
 @pytest.fixture
@@ -27,8 +29,9 @@ async def async_client():
 
 @pytest.fixture
 def valid_signup_data():
+    """테스트 DB(ddangha_test)가 실행 간 유지되므로 이메일을 매번 유니크하게 생성."""
     return {
-        "email": "test-signup@example.com",
+        "email": f"signup-{uuid.uuid4().hex[:12]}@example.com",
         "password": "securePassword123",
         "nickname": "테스트유저",
     }
@@ -54,12 +57,14 @@ class TestSignup:
         assert data["data"]["email"] == valid_signup_data["email"]
         assert data["data"]["nickname"] == valid_signup_data["nickname"]
 
-    async def test_signup_duplicate_email(
-        self, async_client: AsyncClient, valid_signup_data: dict
-    ):
+    async def test_signup_duplicate_email(self, async_client: AsyncClient):
         """중복 이메일 회원가입 실패 (409)"""
-        email = "dup-signup@example.com"
-        payload = {**valid_signup_data, "email": email}
+        email = f"dup-{uuid.uuid4().hex[:12]}@example.com"
+        payload = {
+            "email": email,
+            "password": "securePassword123",
+            "nickname": "중복테스트",
+        }
         await async_client.post("/api/v1/auth/signup", json=payload)
         response = await async_client.post("/api/v1/auth/signup", json=payload)
         assert response.status_code == status.HTTP_409_CONFLICT
@@ -142,8 +147,8 @@ class TestSignup:
     async def test_signup_response_format(
         self, async_client: AsyncClient, valid_signup_data: dict
     ):
-        """응답 형식 검증: uid, email, nickname"""
-        payload = {**valid_signup_data, "email": "format-check@example.com"}
+        """응답 형식 검증: uid, email, nickname (이메일은 valid_signup_data의 유니크 값 사용)"""
+        payload = valid_signup_data
         response = await async_client.post("/api/v1/auth/signup", json=payload)
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()

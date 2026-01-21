@@ -6,6 +6,8 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+pytestmark = pytest.mark.integration
+
 
 def test_spec_ok_returns_200_with_success_and_data(client: TestClient):
     """GET /api/v1/_spec/ok → 200, success=True, data 존재"""
