@@ -5,7 +5,7 @@ spec: 002-login-design — JWT 토큰 생성/검증
 
 import os
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
 
 # 환경변수 설정 (테스트용)
@@ -47,8 +47,9 @@ def test_create_access_token_includes_expiration():
     assert "exp" in payload
     
     # 만료 시간이 약 15분 후인지 확인 (1분 오차 허용)
-    exp_time = datetime.fromtimestamp(payload["exp"])
-    expected_time = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    exp_timestamp = payload["exp"]
+    exp_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+    expected_time = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     time_diff = abs((exp_time - expected_time).total_seconds())
     assert time_diff < 60  # 1분 이내
 
@@ -88,8 +89,9 @@ def test_create_refresh_token_includes_expiration():
     assert "exp" in payload
     
     # 만료 시간이 약 7일 후인지 확인 (1시간 오차 허용)
-    exp_time = datetime.fromtimestamp(payload["exp"])
-    expected_time = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    exp_timestamp = payload["exp"]
+    exp_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+    expected_time = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     time_diff = abs((exp_time - expected_time).total_seconds())
     assert time_diff < 3600  # 1시간 이내
 
@@ -120,7 +122,7 @@ def test_verify_token_expired_returns_none():
     secret_key = os.getenv("JWT_SECRET_KEY")
     expired_payload = {
         "sub": "usr_01ARZ3NDEKTSV4RRFFQ69G5FAV",
-        "exp": datetime.utcnow() - timedelta(minutes=1),  # 1분 전 만료
+        "exp": datetime.now(timezone.utc) - timedelta(minutes=1),  # 1분 전 만료
         "type": "access"
     }
     expired_token = jwt.encode(expired_payload, secret_key, algorithm="HS256")
@@ -142,7 +144,7 @@ def test_verify_token_wrong_secret_returns_none():
     wrong_secret = "wrong-secret-key"
     payload_data = {
         "sub": "usr_01ARZ3NDEKTSV4RRFFQ69G5FAV",
-        "exp": datetime.utcnow() + timedelta(minutes=15),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
         "type": "access"
     }
     wrong_token = jwt.encode(payload_data, wrong_secret, algorithm="HS256")
@@ -175,6 +177,6 @@ def test_get_token_uid_from_refresh_token():
 
 def test_get_token_uid_returns_none_when_no_uid():
     """Payload에 uid가 없으면 None을 반환한다."""
-    payload = {"some": "data", "exp": datetime.utcnow().timestamp()}
+    payload = {"some": "data", "exp": datetime.now(timezone.utc).timestamp()}
     uid = get_token_uid(payload)
     assert uid is None
