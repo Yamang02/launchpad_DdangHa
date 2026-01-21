@@ -12,22 +12,22 @@
 
 #### Phase 1: JWT Handler (Infrastructure)
 
-- [ ] `apps/backend/app/auth/infrastructure/__init__.py` 생성
-- [ ] `apps/backend/app/auth/infrastructure/jwt_handler.py`
-  - [ ] `create_access_token(data: Dict[str, str]) -> str`
-    - [ ] JWT Secret Key 환경변수에서 로드
-    - [ ] Access Token 만료 시간: 15분
-    - [ ] 알고리즘: HS256
-    - [ ] Payload: `{"sub": user_uid, "exp": expire, "type": "access"}`
-  - [ ] `create_refresh_token(uid: str) -> str`
-    - [ ] Refresh Token 만료 시간: 7일
-    - [ ] Payload: `{"uid": uid, "exp": expire, "type": "refresh"}`
-  - [ ] `verify_token(token: str) -> Dict[str, Any] | None`
-    - [ ] 토큰 검증 및 디코딩
-    - [ ] 만료 시간 확인
-    - [ ] 타입 확인 (access/refresh)
-  - [ ] `get_token_uid(payload: Dict[str, Any]) -> str | None`
-    - [ ] Payload에서 uid 추출
+- [x] `apps/backend/app/auth/infrastructure/__init__.py` 생성
+- [x] `apps/backend/app/auth/infrastructure/jwt_handler.py`
+  - [x] `create_access_token(data: Dict[str, str]) -> str`
+    - [x] JWT Secret Key 환경변수에서 로드
+    - [x] Access Token 만료 시간: 15분
+    - [x] 알고리즘: HS256
+    - [x] Payload: `{"sub": user_uid, "exp": expire, "type": "access"}`
+  - [x] `create_refresh_token(uid: str) -> str`
+    - [x] Refresh Token 만료 시간: 7일
+    - [x] Payload: `{"uid": uid, "exp": expire, "type": "refresh"}`
+  - [x] `verify_token(token: str) -> Dict[str, Any] | None`
+    - [x] 토큰 검증 및 디코딩
+    - [x] 만료 시간 확인
+    - [x] 타입 확인 (access/refresh)
+  - [x] `get_token_uid(payload: Dict[str, Any]) -> str | None`
+    - [x] Payload에서 uid 추출
 
 #### Phase 2: Auth Service (Application)
 
@@ -102,18 +102,29 @@
 
 #### Unit Tests
 
-- [ ] `apps/backend/tests/unit/auth/test_jwt_handler.py`
-  - [ ] `test_create_access_token` - Access Token 생성 및 검증
-  - [ ] `test_create_refresh_token` - Refresh Token 생성 및 검증
-  - [ ] `test_verify_token_valid` - 유효한 토큰 검증 성공
-  - [ ] `test_verify_token_expired` - 만료된 토큰 검증 실패
-  - [ ] `test_verify_token_invalid` - 잘못된 토큰 검증 실패
-  - [ ] `test_get_token_uid` - Payload에서 uid 추출
-- [ ] `apps/backend/tests/unit/auth/test_dtos.py` 업데이트
-  - [ ] `LoginRequest` 유효성 검증 테스트
-    - [ ] 유효한 요청 통과
-    - [ ] 잘못된 이메일 형식 거부
-    - [ ] 빈 비밀번호 거부
+- [x] `apps/backend/tests/unit/auth/test_jwt_handler.py`
+  - [x] `test_create_access_token` - Access Token 생성 및 검증
+  - [x] `test_create_refresh_token` - Refresh Token 생성 및 검증
+  - [x] `test_verify_token_valid` - 유효한 토큰 검증 성공
+  - [x] `test_verify_token_expired` - 만료된 토큰 검증 실패
+  - [x] `test_verify_token_invalid` - 잘못된 토큰 검증 실패
+  - [x] `test_get_token_uid` - Payload에서 uid 추출
+- [x] `apps/backend/tests/unit/auth/test_dtos.py` 업데이트
+  - [x] `LoginRequest` 유효성 검증 테스트
+    - [x] 유효한 요청 통과
+    - [x] 잘못된 이메일 형식 거부
+    - [x] 빈 비밀번호 거부
+  - [x] `LoginResponse` 테스트
+    - [x] 유효한 응답 생성
+    - [x] 기본 token_type이 'Bearer'인지 확인
+- [x] `apps/backend/tests/unit/auth/test_auth_service_login.py` 생성
+  - [x] `test_login_success` - 유효한 자격증명으로 로그인 성공
+  - [x] `test_login_user_not_found` - 존재하지 않는 이메일로 로그인 실패
+  - [x] `test_login_invalid_password` - 잘못된 비밀번호로 로그인 실패
+  - [x] `test_login_inactive_account` - 비활성화된 계정 로그인 실패
+  - [x] `test_login_suspended_account` - 정지된 계정 로그인 실패
+  - [x] `test_login_updates_last_login_at` - 로그인 성공 시 last_login_at 업데이트
+  - [x] `test_login_returns_valid_tokens` - 유효한 토큰 반환 확인
 - [ ] `apps/backend/tests/unit/user/test_repository_protocol.py` 업데이트
   - [ ] `update_last_login` 메소드 시그니처 확인
 - [ ] `apps/backend/tests/unit/user/test_sqlalchemy_user_repository.py` 업데이트
