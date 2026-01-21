@@ -13,7 +13,7 @@
     "test:watch": "python -m pytest --watch",
     "test:cov": "python -m pytest --cov=. --cov-report=html --cov-report=term",
     "test:verbose": "python -m pytest -v",
-    "test:unit": "python -m pytest -m unit",
+    "test:unit": "python -m pytest tests/unit",
     "test:integration": "python -m pytest -m integration -v"
   },
   "dependencies": {}
