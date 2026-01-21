@@ -20,7 +20,7 @@ if not _url:
 elif _url.startswith("postgresql://") and "asyncpg" not in _url:
     _url = _url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-# 통합 테스트용 DB(ddangha_test) 사용 시 NullPool: 연결 재사용 없이 테스트 간 격리, asyncpg "another operation is in progress" 완화
+# 테스트용 DB(ddangha_test) 사용 시 NullPool: 연결 재사용 없이 테스트 간 격리, asyncpg "another operation is in progress" 완화
 _engine_kw: dict = {"echo": os.getenv("SQL_ECHO", "").lower() in ("1", "true")}
 if "ddangha_test" in (_url or ""):
     _engine_kw["poolclass"] = NullPool

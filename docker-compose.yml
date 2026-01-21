@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # PostgreSQL (테스트용, 통합 테스트 / pytest -m integration)
+  # PostgreSQL (테스트: pytest 통합 + Playwright E2E, 둘 다 ddangha_test 사용)
   postgres-test:
     image: postgres:15-alpine
     container_name: ddangha-postgres-test

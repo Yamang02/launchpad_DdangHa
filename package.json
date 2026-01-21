@@ -19,8 +19,11 @@
     "test:backend:integration": "yarn workspace @ddangha/backend test:integration",
     "test:infra:up": "docker compose up postgres-test -d",
     "test:infra:down": "docker compose stop postgres-test",
+    "test:db:reset": "node scripts/truncate-test-dbs.mjs",
     "test:e2e": "yarn workspace @ddangha/frontend test:e2e",
-    "test:e2e:ui": "yarn workspace @ddangha/frontend test:e2e:ui"
+    "test:e2e:ui": "yarn workspace @ddangha/frontend test:e2e:ui",
+    "test:e2e:report": "yarn workspace @ddangha/frontend test:e2e:report",
+    "test:frontend:unit:ui": "yarn workspace @ddangha/frontend test:unit:ui"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

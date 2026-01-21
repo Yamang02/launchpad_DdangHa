@@ -83,7 +83,7 @@ export function SignupForm() {
   )
 
   return (
-    <form onSubmit={handleSubmit} className="signup-form">
+    <form onSubmit={handleSubmit} noValidate className="signup-form">
       <h2>회원가입</h2>
 
       {serverError && (
