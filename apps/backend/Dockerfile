@@ -11,7 +11,10 @@ RUN apt-get update && apt-get install -y \
 # Python 의존성 설치
 COPY pyproject.toml ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings sqlalchemy psycopg2-binary python-dotenv
+    pip install --no-cache-dir \
+      fastapi "uvicorn[standard]" pydantic pydantic-settings \
+      sqlalchemy psycopg2-binary asyncpg python-dotenv \
+      bcrypt python-ulid email-validator alembic
 
 # 애플리케이션 코드 복사
 COPY . .

@@ -8,11 +8,11 @@ services:
       POSTGRES_PASSWORD: ddangha_password
       POSTGRES_DB: ddangha_db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddangha_user"]
+      test: ["CMD-SHELL", "pg_isready -U ddangha_user -d ddangha_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,23 +34,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-
-  # Frontend
-  frontend:
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
-    container_name: ddangha-frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./apps/frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    environment:
-      - VITE_API_URL=http://localhost:8000
+    command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 volumes:
   postgres_data:

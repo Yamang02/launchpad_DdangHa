@@ -86,37 +86,52 @@ yarn install
 
 2. **환경 변수 설정**
 ```bash
-# Backend 환경 변수
-cp apps/backend/.env.example apps/backend/.env
+# Backend 환경 변수 (로컬에서 백엔드 실행 시)
+cp apps/backend/env.example apps/backend/.env
 # 필요시 .env 파일 수정
 ```
 
-3. **Docker로 전체 스택 실행**
+3. **Docker로 Postgres + Backend 실행**
 ```bash
 docker-compose up
 ```
 
 이 명령으로 다음이 실행됩니다:
-- PostgreSQL (포트 5432)
-- Backend API (포트 8000)
-- Frontend (포트 3000)
+- **PostgreSQL** (호스트 포트 5432, DB: `ddangha_db`)
+- **Backend API** (포트 8000, 기동 시 `alembic upgrade head` 자동 실행)
 
-4. **개별 실행 (Docker 없이)**
+Frontend는 HMR·환경 변수 편의를 위해 **로컬에서 실행**합니다.
 
-**Backend:**
-```bash
-cd apps/backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -e .
-yarn dev
-```
-
-**Frontend:**
+4. **Frontend 로컬 실행**
 ```bash
 cd apps/frontend
 yarn install
 yarn dev
+```
+
+- Vite 기본: `http://localhost:5173` (vite.config에 `port: 3000`이면 3000)
+- API: `http://localhost:8000/api/v1` (백엔드 Docker 기동 시)
+
+5. **DB 클라이언트 접속 (DBeaver, pgAdmin 등)**
+
+| 항목 | 값 |
+|------|-----|
+| Host | `localhost` |
+| Port | `5432` |
+| Database | `ddangha_db` |
+| User | `ddangha_user` |
+| Password | `ddangha_password` |
+
+> `docker-compose up`으로 Postgres가 떠 있어야 합니다. 다른 프로젝트가 5432를 쓰면 포트가 겹치므로, 동시에 하나만 실행하세요.
+
+6. **Backend만 로컬 실행 (Docker Postgres 연결)**
+
+Docker Postgres는 띄운 상태에서:
+```bash
+cd apps/backend
+# pip install -e ".[dev]"  # 최초 1회
+$env:DATABASE_URL="postgresql://ddangha_user:ddangha_password@localhost:5432/ddangha_db"  # PowerShell
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 개발 스크립트

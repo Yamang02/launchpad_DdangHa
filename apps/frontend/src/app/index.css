@@ -15,3 +15,106 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Signup form */
+.signup-page,
+.login-page {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.signup-form h2 {
+  margin-bottom: 0.5rem;
+}
+
+.signup-form__error {
+  padding: 0.75rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.signup-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.signup-form__group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.signup-form__group input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.signup-form__group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.signup-form__group input[aria-invalid="true"] {
+  border-color: #dc2626;
+}
+
+.signup-form__field-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.signup-form__submit {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.signup-form__submit:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.signup-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.signup-form__footer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.signup-form__footer a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.signup-form__footer a:hover {
+  text-decoration: underline;
+}
+
+.login-page__message {
+  padding: 0.75rem;
+  background: #ecfdf5;
+  color: #059669;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}

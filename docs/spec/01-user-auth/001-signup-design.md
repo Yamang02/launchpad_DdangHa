@@ -26,67 +26,80 @@
 - [x] `apps/backend/app/shared/database.py` - DB 연결 설정
   - [x] `get_db()` async generator
   - [x] SQLAlchemy async engine 설정
+  - [x] `Base` (DeclarativeBase) - ORM 공통 베이스
 - [x] `docs/technical/async-database.md` - postgresql+asyncpg, get_db 기술 문서
 
 #### Phase 2: User 도메인
 
-- [ ] `apps/backend/app/user/__init__.py` 생성
-- [ ] **Domain Layer**
-  - [ ] `apps/backend/app/user/domain/__init__.py`
-  - [ ] `apps/backend/app/user/domain/entities.py`
-    - [ ] `UserStatus` Enum (active, inactive, suspended)
-    - [ ] `User` dataclass
-  - [ ] `apps/backend/app/user/domain/repository.py`
-    - [ ] `UserRepository` Protocol/ABC
-      - [ ] `get_by_email(email: str) -> User | None`
-      - [ ] `get_by_uid(uid: str) -> User | None`
-      - [ ] `create(user: User) -> User`
-- [ ] **Infrastructure Layer**
-  - [ ] `apps/backend/app/user/infrastructure/__init__.py`
-  - [ ] `apps/backend/app/user/infrastructure/models.py`
-    - [ ] `UserModel` SQLAlchemy ORM 모델
-  - [ ] `apps/backend/app/user/infrastructure/repository.py`
-    - [ ] `SQLAlchemyUserRepository` 구현
+- [x] `apps/backend/app/user/__init__.py` 생성
+- [x] **Domain Layer**
+  - [x] `apps/backend/app/user/domain/__init__.py`
+  - [x] `apps/backend/app/user/domain/entities.py`
+    - [x] `UserStatus` Enum (active, inactive, suspended)
+    - [x] `User` dataclass
+  - [x] `apps/backend/app/user/domain/repository.py`
+    - [x] `UserRepository` Protocol/ABC
+      - [x] `get_by_email(email: str) -> User | None`
+      - [x] `get_by_uid(uid: str) -> User | None`
+      - [x] `create(user: User) -> User`
+- [x] **Infrastructure Layer**
+  - [x] `apps/backend/app/user/infrastructure/__init__.py`
+  - [x] `apps/backend/app/user/infrastructure/models.py`
+    - [x] `UserModel` SQLAlchemy ORM 모델
+  - [x] `apps/backend/app/user/infrastructure/repository.py`
+    - [x] `SQLAlchemyUserRepository` 구현
+
+#### Phase 2.5: 마이그레이션 실행 전략 (로컬 / 배포)
+
+배포(main) 환경에서는 **CI/CD 파이프라인에서 전용 단계**로 `alembic upgrade head`를 실행한다. (앱 기동 시 자동 실행은 사용하지 않음)
+
+- [x] **로컬(dev)**: 앱 기동 전 `alembic upgrade head` 자동 실행
+  - [x] docker-compose backend `command`에서 `alembic upgrade head` 후 uvicorn 실행
+- [ ] **배포(main)**: CI/CD에 migrate 전용 단계 추가
+  - [ ] migrate 단계는 deploy(앱 배포) **이전**에 실행, 성공 시에만 앱 배포
+  - [ ] migrate 단계: `DATABASE_URL`은 배포 대상 DB, `alembic upgrade head` 실행
+  - [ ] migrate 실패 시 배포 파이프라인 중단 (앱 이미지/컨테이너 배포하지 않음)
+- [ ] (선택) GitHub Actions: `migrate` job → `deploy` job 순서, `migrate` 성공 시에만 `deploy` 실행
 
 #### Phase 3: Auth 도메인 (회원가입)
 
-- [ ] `apps/backend/app/auth/__init__.py` 생성
-- [ ] **Application Layer**
-  - [ ] `apps/backend/app/auth/application/__init__.py`
-  - [ ] `apps/backend/app/auth/application/dtos.py`
-    - [ ] `SignupRequest` (Pydantic)
-      - [ ] `email: EmailStr`
-      - [ ] `password: str` (min 8자, 영문+숫자)
-      - [ ] `nickname: str` (2-20자)
-    - [ ] `SignupResponse`
-      - [ ] `uid: str`
-      - [ ] `email: str`
-      - [ ] `nickname: str`
-  - [ ] `apps/backend/app/auth/application/services.py`
-    - [ ] `AuthService.signup(request: SignupRequest) -> SignupResponse`
+- [x] `apps/backend/app/auth/__init__.py` 생성
+- [x] **Application Layer**
+  - [x] `apps/backend/app/auth/application/__init__.py`
+  - [x] `apps/backend/app/auth/application/dtos.py`
+    - [x] `SignupRequest` (Pydantic)
+      - [x] `email: EmailStr`
+      - [x] `password: str` (min 8자, 영문+숫자)
+      - [x] `nickname: str` (2-20자)
+    - [x] `SignupResponse`
+      - [x] `uid: str`
+      - [x] `email: str`
+      - [x] `nickname: str`
+  - [x] `apps/backend/app/auth/application/services.py`
+    - [x] `AuthService.signup(request: SignupRequest) -> SignupResponse`
       1. 이메일 중복 검사
       2. 비밀번호 해싱
       3. User 생성 (UID 자동 생성)
       4. DB 저장
       5. Response 반환
-- [ ] **Interface Layer**
-  - [ ] `apps/backend/app/auth/interface/__init__.py`
-  - [ ] `apps/backend/app/auth/interface/http/__init__.py`
-  - [ ] `apps/backend/app/auth/interface/http/router.py`
-    - [ ] `POST /api/v1/auth/signup` 엔드포인트
-    - [ ] 에러 핸들러 (400, 409)
+- [x] **Interface Layer**
+  - [x] `apps/backend/app/auth/interface/__init__.py`
+  - [x] `apps/backend/app/auth/interface/http/__init__.py`
+  - [x] `apps/backend/app/auth/interface/http/router.py`
+    - [x] `POST /api/v1/auth/signup` 엔드포인트
+    - [x] 에러 핸들러 (400, 409)
 
 #### Phase 4: Database Migration
 
-- [ ] Alembic 초기화 (미설정 시)
-- [ ] `alembic/versions/001_create_users_table.py`
-  - [ ] users 테이블 생성
-  - [ ] 인덱스 생성 (uid, email, status, created_at)
+- [x] Alembic 초기화
+- [x] `alembic/versions/001_create_users_table.py`
+  - [x] users 테이블 생성
+  - [x] 인덱스 생성 (uid, email, status, created_at)
 
 #### Phase 5: 라우터 등록
 
-- [ ] `apps/backend/main.py` 에 auth router 등록
-- [ ] API prefix: `/api/v1`
+- [x] `apps/backend/main.py` 에 auth router 등록
+- [x] API prefix: `/api/v1`
 
 ---
 
@@ -106,30 +119,41 @@
   - [x] DomainError, ValidationError, DuplicateEmailError 테스트
 - [x] `apps/backend/tests/unit/shared/test_database.py`
   - [x] get_db async generator 테스트
-- [ ] `apps/backend/tests/unit/auth/__init__.py`
-- [ ] `apps/backend/tests/unit/auth/test_dtos.py`
-  - [ ] SignupRequest 유효성 검증 테스트
-    - [ ] 유효한 요청 통과
-    - [ ] 잘못된 이메일 형식 거부
-    - [ ] 짧은 비밀번호 거부 (8자 미만)
-    - [ ] 영문 없는 비밀번호 거부
-    - [ ] 숫자 없는 비밀번호 거부
-    - [ ] 짧은 닉네임 거부 (2자 미만)
-    - [ ] 긴 닉네임 거부 (20자 초과)
+- [x] `apps/backend/tests/unit/user/__init__.py`
+- [x] `apps/backend/tests/unit/user/conftest.py`
+  - [x] `user` fixture (기본 User 도메인 엔티티)
+- [x] `apps/backend/tests/unit/user/test_entities.py`
+  - [x] UserStatus (ACTIVE, INACTIVE, SUSPENDED)
+  - [x] User dataclass (필수/선택 필드, 기본값)
+- [x] `apps/backend/tests/unit/user/test_repository_protocol.py`
+  - [x] UserRepository Protocol (get_by_email, get_by_uid, create)
+- [x] `apps/backend/tests/unit/user/test_models.py`
+  - [x] UserModel (__tablename__, 컬럼, PK)
+- [x] `apps/backend/tests/unit/user/test_sqlalchemy_user_repository.py`
+  - [x] SQLAlchemyUserRepository (create, get_by_email, get_by_uid)
+- [x] `apps/backend/tests/unit/auth/__init__.py`
+- [x] `apps/backend/tests/unit/auth/test_dtos.py`
+  - [x] SignupRequest 유효성 검증 테스트
+    - [x] 유효한 요청 통과
+    - [x] 잘못된 이메일 형식 거부
+    - [x] 짧은 비밀번호 거부 (8자 미만)
+    - [x] 영문 없는 비밀번호 거부
+    - [x] 숫자 없는 비밀번호 거부
+    - [x] 짧은 닉네임 거부 (2자 미만)
+    - [x] 긴 닉네임 거부 (20자 초과)
 
 #### Integration Tests
 
-- [ ] `apps/backend/tests/integration/__init__.py`
-- [ ] `apps/backend/tests/integration/test_auth_signup.py`
-  - [ ] `test_signup_success` - 유효한 정보로 회원가입 성공 (201)
-  - [ ] `test_signup_duplicate_email` - 중복 이메일 회원가입 실패 (409)
-  - [ ] `test_signup_invalid_email_format` - 잘못된 이메일 형식 거부 (400)
-  - [ ] `test_signup_short_password` - 8자 미만 비밀번호 거부 (400)
-  - [ ] `test_signup_password_without_letter` - 영문 미포함 비밀번호 거부 (400)
-  - [ ] `test_signup_password_without_number` - 숫자 미포함 비밀번호 거부 (400)
-  - [ ] `test_signup_short_nickname` - 2자 미만 닉네임 거부 (400)
-  - [ ] `test_signup_long_nickname` - 20자 초과 닉네임 거부 (400)
-  - [ ] `test_signup_response_format` - 응답 형식 검증 (uid, email, nickname)
+- [x] `apps/backend/tests/integration/test_auth_signup.py`
+  - [x] `test_signup_success` - 유효한 정보로 회원가입 성공 (201)
+  - [x] `test_signup_duplicate_email` - 중복 이메일 회원가입 실패 (409)
+  - [x] `test_signup_invalid_email_format` - 잘못된 이메일 형식 거부 (422)
+  - [x] `test_signup_short_password` - 8자 미만 비밀번호 거부 (422)
+  - [x] `test_signup_password_without_letter` - 영문 미포함 비밀번호 거부 (422)
+  - [x] `test_signup_password_without_number` - 숫자 미포함 비밀번호 거부 (422)
+  - [x] `test_signup_short_nickname` - 2자 미만 닉네임 거부 (422)
+  - [x] `test_signup_long_nickname` - 20자 초과 닉네임 거부 (422)
+  - [x] `test_signup_response_format` - 응답 형식 검증 (uid, email, nickname)
 
 ---
 
@@ -137,60 +161,55 @@
 
 #### Phase 1: Shared 모듈
 
-- [ ] `apps/frontend/src/shared/api/client.ts` - Axios 인스턴스
-  - [ ] baseURL 설정
-  - [ ] 에러 인터셉터
-- [ ] `apps/frontend/src/shared/api/authApi.ts`
-  - [ ] `signup(data: SignupData): Promise<SignupResponse>`
-- [ ] `apps/frontend/src/shared/types/api.ts`
-  - [ ] `ApiResponse<T>` 타입
-  - [ ] `ApiError` 타입
+- [x] `apps/frontend/src/shared/api/client.ts` - Axios 인스턴스
+  - [x] baseURL 설정
+  - [x] 에러 인터셉터
+- [x] `apps/frontend/src/shared/api/authApi.ts`
+  - [x] `signup(data): Promise<SignupResponse>`
+- [x] `apps/frontend/src/shared/types/api.ts`
+  - [x] `ApiResponse<T>` 타입
+  - [x] `ApiError` 타입
 
 #### Phase 2: Features - Auth
 
-- [ ] `apps/frontend/src/features/auth/types.ts`
-  - [ ] `SignupFormData` interface
-  - [ ] `SignupRequest` interface
-  - [ ] `SignupResponse` interface
-- [ ] `apps/frontend/src/features/auth/ui/SignupForm.tsx`
-  - [ ] 이메일 입력 필드
-  - [ ] 비밀번호 입력 필드 (마스킹)
-  - [ ] 비밀번호 확인 입력 필드
-  - [ ] 닉네임 입력 필드
-  - [ ] 회원가입 버튼
-  - [ ] 로그인 페이지 링크
-  - [ ] 실시간 유효성 검사
-  - [ ] 에러 메시지 표시
-- [ ] `apps/frontend/src/features/auth/lib/validation.ts`
-  - [ ] `validateEmail(email: string): string | null`
-  - [ ] `validatePassword(password: string): string | null`
-  - [ ] `validatePasswordConfirm(password: string, confirm: string): string | null`
-  - [ ] `validateNickname(nickname: string): string | null`
+- [x] `apps/frontend/src/features/auth/types.ts`
+  - [x] `SignupFormData` interface
+- [x] `apps/frontend/src/features/auth/ui/SignupForm.tsx`
+  - [x] 이메일 입력 필드
+  - [x] 비밀번호 입력 필드 (마스킹)
+  - [x] 비밀번호 확인 입력 필드
+  - [x] 닉네임 입력 필드
+  - [x] 회원가입 버튼
+  - [x] 로그인 페이지 링크
+  - [x] 실시간 유효성 검사
+  - [x] 에러 메시지 표시
+- [x] `apps/frontend/src/features/auth/lib/validation.ts`
+  - [x] `validateEmail`, `validatePassword`, `validatePasswordConfirm`, `validateNickname`
 
 #### Phase 3: Pages
 
-- [ ] `apps/frontend/src/pages/signup/SignupPage.tsx`
-  - [ ] SignupForm 통합
-  - [ ] 회원가입 성공 시 로그인 페이지로 리다이렉트
-  - [ ] 로딩 상태 처리
-  - [ ] 서버 에러 메시지 표시
+- [x] `apps/frontend/src/pages/signup/SignupPage.tsx`
+  - [x] SignupForm 통합
+  - [x] 회원가입 성공 시 로그인 페이지로 리다이렉트
+  - [x] 로딩 상태 처리
+  - [x] 서버 에러 메시지 표시
 
 #### Phase 4: 라우팅
 
-- [ ] `apps/frontend/src/app/router.tsx` 에 `/signup` 경로 추가
+- [x] `apps/frontend/src/app/App.tsx` 에 `/signup`, `/login` 경로 추가
 
 ---
 
 ### 1.4 Frontend E2E 테스트 (Playwright)
 
-- [ ] `apps/frontend/e2e/auth/signup.spec.ts`
-  - [ ] `회원가입 폼이 올바르게 렌더링됨`
-  - [ ] `유효한 정보 입력 시 회원가입 성공 후 로그인 페이지로 이동`
-  - [ ] `이메일 형식 오류 시 에러 메시지 표시`
-  - [ ] `비밀번호 규칙 미충족 시 에러 메시지 표시`
-  - [ ] `비밀번호 확인 불일치 시 에러 메시지 표시`
-  - [ ] `중복 이메일 시 에러 메시지 표시`
-  - [ ] `로그인 링크 클릭 시 로그인 페이지로 이동`
+- [x] `apps/frontend/e2e/auth/signup.spec.ts`
+  - [x] `회원가입 폼이 올바르게 렌더링됨`
+  - [x] `유효한 정보 입력 시 회원가입 성공 후 로그인 페이지로 이동`
+  - [x] `이메일 형식 오류 시 에러 메시지 표시`
+  - [x] `비밀번호 규칙 미충족 시 에러 메시지 표시`
+  - [x] `비밀번호 확인 불일치 시 에러 메시지 표시`
+  - [x] `중복 이메일 시 에러 메시지 표시`
+  - [x] `로그인 링크 클릭 시 로그인 페이지로 이동`
 
 ---
 
@@ -234,6 +253,12 @@ apps/
 │   │   │   ├── shared/
 │   │   │   │   ├── test_uid.py
 │   │   │   │   └── test_security.py
+│   │   │   ├── user/
+│   │   │   │   ├── conftest.py
+│   │   │   │   ├── test_entities.py
+│   │   │   │   ├── test_repository_protocol.py
+│   │   │   │   ├── test_models.py
+│   │   │   │   └── test_sqlalchemy_user_repository.py
 │   │   │   └── auth/
 │   │   │       └── test_dtos.py
 │   │   └── integration/
@@ -870,6 +895,17 @@ export const SignupForm: React.FC = () => {
 ---
 
 ### 2.5 Database Migration
+
+#### 실행 전략 (로컬 / 배포)
+
+| 환경 | 방식 | 비고 |
+|------|------|------|
+| **로컬(dev)** | 앱 기동 전 `alembic upgrade head` 자동 실행 | docker-compose `command` 또는 entrypoint에서 `alembic upgrade head && uvicorn ...` |
+| **배포(main)** | CI/CD 파이프라인 **전용 단계**로 실행 | deploy(앱 배포) **이전**에 migrate 단계 실행, 성공 시에만 앱 배포. `DATABASE_URL`은 배포 대상 DB. migrate 실패 시 배포 중단. |
+
+배포에서는 앱 컨테이너 기동 시 자동 실행을 사용하지 않는다. (multi-replica 시 중복 실행·경합 방지, 마이그레이션 실패 시 이전 앱 유지·재시도 용이)
+
+#### 001_create_users_table.py
 
 ```python
 """001_create_users_table
