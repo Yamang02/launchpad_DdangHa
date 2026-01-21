@@ -1088,6 +1088,38 @@ class TestSignup:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 ```
 
+### 3.1.1 셀(Shell)을 이용한 API 기능 점검
+
+기능 테스트나 TDD 중에 셀(PowerShell, curl 등)로 API를 호출할 때, **닉네임 등 한글이 포함된 요청은 반드시 UTF-8로 인코딩**하고 `Content-Type: application/json; charset=utf-8`을 지정해야 한다. 그렇지 않으면 DB에 `???`로 저장되는 등 인코딩 오류가 발생한다.
+
+**PowerShell (Invoke-RestMethod)**  
+`-Body`에 문자열만 넣으면 기본 인코딩 때문에 한글이 깨질 수 있다. **UTF-8 바이트 배열**과 `Content-Type: application/json; charset=utf-8`을 사용한다.
+
+```powershell
+$json = '{"email":"test@example.com","password":"passWord1","nickname":"테스트"}'
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+Invoke-RestMethod -Uri "http://localhost:8000/api/v1/auth/signup" -Method POST -ContentType "application/json; charset=utf-8" -Body $bytes
+```
+
+**curl (Windows에서는 `curl.exe` 사용 권장)**  
+`-H "Content-Type: application/json; charset=utf-8"`를 붙이고, 본문은 UTF-8로 전송한다. 한글을 `-d`에 직접 넣으면 셸 인코딩에 따라 깨질 수 있으므로, JSON을 **UTF-8로 저장한 파일**을 쓰는 것을 권장한다.
+
+```bash
+# body.json을 UTF-8로 저장한 뒤
+curl.exe -X POST "http://localhost:8000/api/v1/auth/signup" -H "Content-Type: application/json; charset=utf-8" -d "@body.json"
+```
+
+**Python**  
+`json.dumps(...).encode("utf-8")`로 바디를 만들고 `Content-Type: application/json; charset=utf-8` 헤더를 준다.
+
+```python
+import json, urllib.request
+body = json.dumps({"email":"t@e.com","password":"passWord1","nickname":"테스트"}).encode("utf-8")
+req = urllib.request.Request("http://localhost:8000/api/v1/auth/signup", data=body, method="POST",
+    headers={"Content-Type":"application/json; charset=utf-8"})
+# urllib.request.urlopen(req) ...
+```
+
 ### 3.2 Frontend E2E Test 예시
 
 ```typescript

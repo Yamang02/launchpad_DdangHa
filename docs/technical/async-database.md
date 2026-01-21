@@ -169,9 +169,9 @@ environment:
   - DATABASE_URL=postgresql://ddangha_user:ddangha_password@postgres:5432/ddangha_db
 ```
 
-- **postgres** 컨테이너 내부 포트 5432, 호스트에는 **5433** 매핑 (`5433:5432`)
+- **postgres** 컨테이너 내부 포트 5432, 호스트에는 **5433** 매핑 (`5432:5432`)
 - backend는 같은 Docker 네트워크에서 `postgres:5432`로 접속
-- **호스트에서 직접** uvicorn을 돌릴 때는 `localhost:5433` 사용:
+- **호스트에서 직접** uvicorn을 돌릴 때는 `localhost:5432` 사용:
   - `DATABASE_URL=postgresql://ddangha_user:ddangha_password@localhost:5433/ddangha_db`
 - `env.example`의 `DATABASE_URL` 형식을 따르면 된다. `database.py`가 `postgresql+asyncpg://`로 자동 변환한다.
 

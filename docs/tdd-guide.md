@@ -20,6 +20,7 @@
 
 - [Frontend TDD (Playwright)](#frontend-tdd-playwright)
 - [Backend TDD (pytest + FastAPI)](#backend-tdd-pytest--fastapi)
+- [셀(Shell)을 이용한 API 기능 점검 시 UTF-8 사용](#셀shell을-이용한-api-기능-점검-시-utf-8-사용)
 
 ---
 
@@ -394,6 +395,26 @@ apps/frontend/
       user-profile.spec.ts
     example.spec.ts   # 예제 테스트
 ```
+
+---
+
+## Backend TDD (pytest + FastAPI)
+
+- **통합 테스트 실행:** `apps/backend`에서 `pytest -m integration` (또는 `python -m pytest -m integration`)
+- **Unit 테스트:** `pytest -m "not integration"` 또는 `pytest tests/unit`
+
+---
+
+## 셀(Shell)을 이용한 API 기능 점검 시 UTF-8 사용
+
+TDD나 기능 테스트 중에 **PowerShell, curl 등 셀에서 API를 호출**할 때, 닉네임 등 **한글이 포함된 요청은 반드시 UTF-8**로 보내고 `Content-Type: application/json; charset=utf-8`을 지정해야 한다.  
+기본 인코딩으로 보내면 한글이 `???`로 DB에 저장되는 등 오류가 발생한다.
+
+- **PowerShell:** `-Body`에 UTF-8 바이트 배열 사용, `-ContentType "application/json; charset=utf-8"`
+- **curl:** `-H "Content-Type: application/json; charset=utf-8"`, 본문은 UTF-8 파일(`-d @body.json`) 권장. Windows는 `curl.exe` 사용.
+- **Python:** `json.dumps(...).encode("utf-8")`와 `Content-Type: application/json; charset=utf-8` 헤더.
+
+상세 예시는 [001-signup-design § 3.1.1 셀(Shell)을 이용한 API 기능 점검](spec/01-user-auth/001-signup-design.md#311-셀shell을-이용한-api-기능-점검)을 참고한다.
 
 ---
 

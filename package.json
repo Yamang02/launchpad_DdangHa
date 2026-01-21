@@ -13,9 +13,14 @@
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",
     "type-check": "yarn workspaces run type-check",
+    "test": "yarn test:backend",
+    "test:backend": "yarn workspace @ddangha/backend test",
+    "test:backend:unit": "yarn workspace @ddangha/backend test:unit",
+    "test:backend:integration": "yarn workspace @ddangha/backend test:integration",
+    "test:infra:up": "docker compose up postgres-test -d",
+    "test:infra:down": "docker compose stop postgres-test",
     "test:e2e": "yarn workspace @ddangha/frontend test:e2e",
-    "test:e2e:ui": "yarn workspace @ddangha/frontend test:e2e:ui",
-    "test:backend": "yarn workspace @ddangha/backend test"
+    "test:e2e:ui": "yarn workspace @ddangha/frontend test:e2e:ui"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

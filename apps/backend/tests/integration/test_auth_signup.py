@@ -1,9 +1,14 @@
 """회원가입 API 통합 테스트 (POST /api/v1/auth/signup)"""
 
+import uuid
+
 import pytest
 from fastapi import status
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select
 
+from app.shared.database import async_session_maker
+from app.user.infrastructure.models import UserModel
 from main import app
 
 # DATABASE_URL 필요 (로컬: postgres, docker: postgres 서비스). DB 없으면 스킵 가능.
@@ -146,3 +151,25 @@ class TestSignup:
         d = data["data"]
         assert "uid" in d and d["uid"].startswith("usr_")
         assert "email" in d and "nickname" in d
+
+    async def test_signup_persists_to_test_db(self, async_client: AsyncClient):
+        """회원가입 시 test DB에 한글 닉네임까지 정확히 저장되는지 검증"""
+        email = f"db-check-{uuid.uuid4().hex[:8]}@example.com"
+        nickname = "한글닉네임"
+        payload = {
+            "email": email,
+            "password": "securePassword123",
+            "nickname": nickname,
+        }
+        response = await async_client.post("/api/v1/auth/signup", json=payload)
+        assert response.status_code == status.HTTP_201_CREATED, response.text
+
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(UserModel).where(UserModel.email == email)
+            )
+            user = result.scalar_one_or_none()
+        assert user is not None, "test DB에 회원가입 레코드가 있어야 함"
+        assert user.email == email
+        assert user.nickname == nickname, "한글 닉네임이 test DB에 올바르게 저장되어야 함"
+        assert user.uid.startswith("usr_")

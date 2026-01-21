@@ -7,6 +7,9 @@ services:
       POSTGRES_USER: ddangha_user
       POSTGRES_PASSWORD: ddangha_password
       POSTGRES_DB: ddangha_db
+      # 한글 등 UTF-8 저장: init 시 인코딩 명시 (볼륨 최초 생성 때만 적용)
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+      LANG: "C.UTF-8"
     ports:
       - "5432:5432"
     volumes:
@@ -15,6 +18,26 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ddangha_user -d ddangha_db"]
       interval: 10s
       timeout: 5s
+      retries: 5
+
+  # PostgreSQL (테스트용, 통합 테스트 / pytest -m integration)
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: ddangha-postgres-test
+    environment:
+      POSTGRES_USER: ddangha_user
+      POSTGRES_PASSWORD: ddangha_password
+      POSTGRES_DB: ddangha_test
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+      LANG: "C.UTF-8"
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ddangha_user -d ddangha_test"]
+      interval: 5s
+      timeout: 3s
       retries: 5
 
   # Backend API
@@ -38,3 +61,4 @@ services:
 
 volumes:
   postgres_data:
+  postgres_test_data:
