@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.user.domain.entities import User
-from app.user.infrastructure.repository import SQLAlchemyUserRepository
+from app.domain.user.entities import User
+from app.infrastructure.user.repository import SQLAlchemyUserRepository
 
 
 def _make_mock_orm(*, uid: str, email: str, **kwargs) -> SimpleNamespace:
@@ -97,3 +97,19 @@ class TestSQLAlchemyUserRepository:
         result = await repo.get_by_uid(uid)
         assert isinstance(result, User) and result.uid == uid
         mock_session.execute.assert_awaited()
+
+    @pytest.mark.asyncio
+    async def test_update_last_login(self):
+        """update_last_login(uid)는 해당 uid의 사용자 last_login_at을 현재 시간(UTC)으로 업데이트한다."""
+        uid = "usr_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        mock_session = MagicMock()
+        mock_session.execute = AsyncMock()
+        mock_session.commit = AsyncMock()
+
+        repo = SQLAlchemyUserRepository(mock_session)
+        await repo.update_last_login(uid)
+
+        # execute()가 호출되었는지 확인 (update 문 실행)
+        mock_session.execute.assert_awaited_once()
+        # commit()이 호출되었는지 확인
+        mock_session.commit.assert_awaited_once()
