@@ -1,6 +1,8 @@
 """User 인프라 저장소 (SQLAlchemy)"""
 
-from sqlalchemy import select
+from datetime import datetime, timezone
+
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.user.entities import User, UserStatus
@@ -53,3 +55,13 @@ class SQLAlchemyUserRepository(UserRepository):
         await self._session.flush()
         await self._session.refresh(orm)
         return self._to_entity(orm)
+
+    async def update_last_login(self, uid: str) -> None:
+        """마지막 로그인 시간 업데이트"""
+        stmt = (
+            update(UserModel)
+            .where(UserModel.uid == uid)
+            .values(last_login_at=datetime.now(timezone.utc))
+        )
+        await self._session.execute(stmt)
+        await self._session.commit()
