@@ -1,11 +1,11 @@
 """Auth 애플리케이션 서비스"""
 
-from app.auth.application.dtos import SignupRequest, SignupResponse
+from app.application.auth.dtos import SignupRequest, SignupResponse
 from app.shared.exceptions import DuplicateEmailError
 from app.shared.security import hash_password
 from app.shared.uid import generate_user_uid
-from app.user.domain.entities import User, UserStatus
-from app.user.domain.repository import UserRepository
+from app.domain.user.entities import User, UserStatus
+from app.domain.user.repository import UserRepository
 
 
 class AuthService:

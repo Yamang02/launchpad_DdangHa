@@ -9,7 +9,7 @@ from alembic import context
 from app.shared.database import Base
 
 # import models so they are registered with Base.metadata (for autogenerate)
-from app.user.infrastructure import models  # noqa: F401
+from app.infrastructure.user import models  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

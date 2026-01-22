@@ -11,7 +11,7 @@ from typing import Dict, Any
 # 환경변수 설정 (테스트용)
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-minimum-32-bytes-long-for-testing"
 
-from app.auth.infrastructure.jwt_handler import (
+from app.infrastructure.auth.jwt_handler import (
     create_access_token,
     create_refresh_token,
     verify_token,

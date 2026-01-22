@@ -236,27 +236,46 @@ useEffect(() => {
 
 ### Backend
 
-**도메인별 구조:**
+**레이어별 구조 (Layer-based):**
 ```
-src/
-  domain/
+app/
+  domain/               # 도메인 레이어
     user/
-      __init__.py
-      models.py          # 도메인 모델
-      repository.py      # 인터페이스
-  application/
+      entities.py       # 도메인 엔티티
+      repository.py     # Repository 인터페이스
+    auth/
+      entities.py
+      repository.py
+  application/          # 애플리케이션 레이어
     user/
-      usecases.py        # 유스케이스
-      services.py        # 애플리케이션 서비스
-  interface/
+      services.py       # 애플리케이션 서비스
+      dtos.py           # Request/Response DTO
+    auth/
+      services.py
+      dtos.py
+  infrastructure/       # 인프라스트럭처 레이어
+    user/
+      models.py         # ORM 모델
+      repository.py     # Repository 구현체
+    auth/
+      jwt_handler.py
+      repository.py
+  interface/            # 인터페이스 레이어
     http/
       routers/
-        user.py          # FastAPI 라우터
-  infrastructure/
-    db/
-      repositories/
-        user_repository.py  # 구현체
+        user.py         # FastAPI 라우터
+        auth.py
+      dependencies.py    # FastAPI 의존성
+  shared/               # 공통 모듈
+    database.py
+    security.py
+    exceptions.py
 ```
+
+**레이어별 구조의 장점:**
+- 레이어별 의존성 관리가 명확함
+- 같은 레이어의 코드를 한 곳에서 찾을 수 있음
+- 아키텍처 문서와 일치
 
 **파일 명명:**
 - 한 파일 = 하나의 주요 개념

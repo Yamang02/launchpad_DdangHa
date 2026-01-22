@@ -5,7 +5,7 @@ spec: 001-signup-design — UserStatus, User dataclass
 import dataclasses
 from datetime import datetime
 
-from app.user.domain.entities import User, UserStatus
+from app.domain.user.entities import User, UserStatus
 
 
 class TestUserStatus:

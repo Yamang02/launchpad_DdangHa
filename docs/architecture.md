@@ -57,29 +57,60 @@
 
 ---
 
-### 개념적 디렉토리 구조
+### 실제 디렉토리 구조
+
+**레이어별 구조 (Layer-based):**
 
 ```text
-domain/
-  ├─ user/
-  ├─ auth/
-  └─ payment/
-
-application/
-  ├─ usecases/
-  └─ services/
-
-interface/
-  └─ http/          # FastAPI router
-
-infrastructure/
-  ├─ db/
-  ├─ external/
-  └─ cache/
+app/
+├── domain/              # 도메인 레이어
+│   ├── user/           # User 도메인
+│   │   ├── entities.py
+│   │   └── repository.py
+│   └── auth/           # Auth 도메인
+│       ├── entities.py
+│       └── repository.py
+│
+├── application/         # 애플리케이션 레이어
+│   ├── user/
+│   │   ├── services.py
+│   │   └── dtos.py
+│   └── auth/
+│       ├── services.py
+│       └── dtos.py
+│
+├── infrastructure/      # 인프라스트럭처 레이어
+│   ├── user/
+│   │   ├── models.py
+│   │   └── repository.py
+│   └── auth/
+│       ├── jwt_handler.py
+│       └── repository.py
+│
+├── interface/          # 인터페이스 레이어
+│   └── http/
+│       ├── routers/
+│       │   ├── user.py
+│       │   └── auth.py
+│       └── dependencies.py
+│
+└── shared/            # 공통 모듈
+    ├── database.py
+    ├── security.py
+    ├── exceptions.py
+    └── uid.py
 ```
 
-> 모든 도메인이 위 구조를 반드시 완벽히 따를 필요는 없다.
-> 빌더톤 상황에서는 **필요한 만큼만 적용**한다.
+**구조 선택 이유:**
+
+레이어별 구조를 채택한 이유:
+- **레이어별 의존성 관리**: 각 레이어의 책임이 명확히 분리됨
+- **아키텍처 문서와 일치**: 개념적 구조와 실제 구조의 일관성
+- **레이어별 코드 탐색**: 같은 레이어의 코드를 한 곳에서 찾을 수 있음
+- **도메인 간 공유 용이**: 같은 레이어의 다른 도메인 코드 참조가 쉬움
+
+> **참고**: 일부 프로젝트는 도메인별 구조(`user/domain/`, `user/application/`)를 사용하기도 하지만,
+> 본 프로젝트는 레이어별 구조를 채택하여 아키텍처 문서와의 일관성을 유지합니다.
 
 ---
 

@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.application.dtos import SignupRequest, SignupResponse
-from app.auth.application.services import AuthService
+from app.application.auth.dtos import SignupRequest, SignupResponse
+from app.application.auth.services import AuthService
 from app.shared.database import get_db
 from app.shared.exceptions import DuplicateEmailError, ValidationError
 from app.shared.schemas.response import ApiErrorBody, ApiErrorResponse, ErrorDetail
-from app.user.infrastructure.repository import SQLAlchemyUserRepository
+from app.infrastructure.user.repository import SQLAlchemyUserRepository
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

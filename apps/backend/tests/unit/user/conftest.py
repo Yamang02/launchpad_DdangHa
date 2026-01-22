@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.user.domain.entities import User, UserStatus
+from app.domain.user.entities import User, UserStatus
 
 
 @pytest.fixture

@@ -31,7 +31,7 @@
 
 #### Phase 2: Auth Service (Application)
 
-- [ ] `apps/backend/app/auth/application/dtos.py` 업데이트
+- [ ] `apps/backend/app/application/auth/dtos.py` 업데이트
   - [ ] `LoginRequest` (Pydantic)
     - [ ] `email: EmailStr`
     - [ ] `password: str`
@@ -40,7 +40,7 @@
     - [ ] `refresh_token: str`
     - [ ] `token_type: str = "Bearer"`
     - [ ] `expires_in: int` (초 단위, 900 = 15분)
-- [ ] `apps/backend/app/auth/application/services.py` 업데이트
+- [ ] `apps/backend/app/application/auth/services.py` 업데이트
   - [ ] `AuthService.login(request: LoginRequest) -> LoginResponse`
     1. 이메일로 사용자 조회 (`get_by_email`)
     2. 사용자 존재 여부 확인 → 없으면 `InvalidCredentialsError`
@@ -57,10 +57,10 @@
 
 #### Phase 3: User Repository 확장
 
-- [ ] `apps/backend/app/user/domain/repository.py` 업데이트
+- [ ] `apps/backend/app/domain/user/repository.py` 업데이트
   - [ ] `UserRepository` Protocol에 메소드 추가:
     - [ ] `update_last_login(uid: str) -> None`
-- [ ] `apps/backend/app/user/infrastructure/repository.py` 업데이트
+- [ ] `apps/backend/app/infrastructure/user/repository.py` 업데이트
   - [ ] `SQLAlchemyUserRepository.update_last_login()` 구현
     - [ ] `last_login_at`을 현재 시간(UTC)으로 업데이트
 
@@ -79,7 +79,7 @@
 
 #### Phase 5: HTTP Router
 
-- [ ] `apps/backend/app/auth/interface/http/router.py` 업데이트
+- [ ] `apps/backend/app/interface/http/routers/auth.py` 업데이트
   - [ ] `POST /api/v1/auth/login` 엔드포인트
     - [ ] `LoginRequest` 받기
     - [ ] `AuthService.login()` 호출
@@ -228,20 +228,22 @@
 apps/
 ├── backend/
 │   ├── app/
-│   │   ├── auth/
-│   │   │   ├── application/
-│   │   │   │   ├── dtos.py          # LoginRequest, LoginResponse
-│   │   │   │   └── services.py      # AuthService.login()
-│   │   │   ├── infrastructure/
+│   │   ├── domain/
+│   │   │   └── user/
+│   │   │       └── repository.py    # UserRepository.update_last_login()
+│   │   ├── application/
+│   │   │   └── auth/
+│   │   │       ├── dtos.py          # LoginRequest, LoginResponse
+│   │   │       └── services.py      # AuthService.login()
+│   │   ├── infrastructure/
+│   │   │   ├── auth/
 │   │   │   │   └── jwt_handler.py   # JWT 토큰 생성/검증
-│   │   │   └── interface/
-│   │   │       └── http/
-│   │   │           └── router.py    # POST /auth/login
-│   │   ├── user/
-│   │   │   ├── domain/
-│   │   │   │   └── repository.py    # UserRepository.update_last_login()
-│   │   │   └── infrastructure/
+│   │   │   └── user/
 │   │   │       └── repository.py  # SQLAlchemyUserRepository.update_last_login()
+│   │   ├── interface/
+│   │   │   └── http/
+│   │   │       └── routers/
+│   │   │           └── auth.py    # POST /auth/login
 │   │   └── shared/
 │   │       ├── exceptions.py        # InvalidCredentialsError, InactiveAccountError, SuspendedAccountError
 │   │       └── security.py          # verify_password() (이미 구현됨)
@@ -413,10 +415,10 @@ def get_token_uid(payload: Dict[str, Any]) -> Optional[str]:
     return payload.get("sub") or payload.get("uid")
 ```
 
-**Auth Service (`apps/backend/app/auth/application/services.py`):**
+**Auth Service (`apps/backend/app/application/auth/services.py`):**
 ```python
-from app.auth.application.dtos import LoginRequest, LoginResponse
-from app.auth.infrastructure.jwt_handler import (
+from app.application.auth.dtos import LoginRequest, LoginResponse
+from app.infrastructure.auth.jwt_handler import (
     create_access_token,
     create_refresh_token,
 )
@@ -426,8 +428,8 @@ from app.shared.exceptions import (
     SuspendedAccountError,
 )
 from app.shared.security import verify_password
-from app.user.domain.entities import UserStatus
-from app.user.domain.repository import UserRepository
+from app.domain.user.entities import UserStatus
+from app.domain.user.repository import UserRepository
 
 class AuthService:
     def __init__(self, user_repository: UserRepository) -> None:
@@ -479,7 +481,7 @@ class AuthService:
         )
 ```
 
-**User Repository (`apps/backend/app/user/domain/repository.py`):**
+**User Repository (`apps/backend/app/domain/user/repository.py`):**
 ```python
 from typing import Protocol
 
@@ -495,13 +497,13 @@ class UserRepository(Protocol):
         ...
 ```
 
-**User Repository Implementation (`apps/backend/app/user/infrastructure/repository.py`):**
+**User Repository Implementation (`apps/backend/app/infrastructure/user/repository.py`):**
 ```python
 from datetime import datetime, timezone
 from sqlalchemy import update
-from app.user.domain.repository import UserRepository
-from app.user.domain.entities import User
-from app.user.infrastructure.models import UserModel
+from app.domain.user.repository import UserRepository
+from app.domain.user.entities import User
+from app.infrastructure.user.models import UserModel
 
 class SQLAlchemyUserRepository:
     # ... 기존 메소드들 ...
@@ -517,14 +519,14 @@ class SQLAlchemyUserRepository:
         await self._session.commit()
 ```
 
-**HTTP Router (`apps/backend/app/auth/interface/http/router.py`):**
+**HTTP Router (`apps/backend/app/interface/http/routers/auth.py`):**
 ```python
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.application.dtos import LoginRequest, LoginResponse
-from app.auth.application.services import AuthService
+from app.application.auth.dtos import LoginRequest, LoginResponse
+from app.application.auth.services import AuthService
 from app.shared.database import get_db
 from app.shared.exceptions import (
     InvalidCredentialsError,
@@ -533,7 +535,7 @@ from app.shared.exceptions import (
     ValidationError,
 )
 from app.shared.schemas.response import ApiErrorBody, ApiErrorResponse
-from app.user.infrastructure.repository import SQLAlchemyUserRepository
+from app.infrastructure.user.repository import SQLAlchemyUserRepository
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

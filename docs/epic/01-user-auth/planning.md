@@ -299,46 +299,49 @@ class UpdateUserRequest:
 
 ### 3.1 Backend Structure
 
+**레이어별 구조 (Layer-based):**
+
 ```
 backend/app/
-├── user/                          # User 도메인
-│   ├── domain/
+├── domain/                        # 도메인 레이어
+│   ├── user/
 │   │   ├── __init__.py
 │   │   ├── entities.py            # User 엔티티
 │   │   ├── value_objects.py       # Email, Password 등 VO
 │   │   └── repository.py          # Repository 인터페이스
-│   ├── application/
+│   └── auth/
+│       ├── __init__.py
+│       ├── entities.py            # RefreshToken 엔티티
+│       └── repository.py          # Repository 인터페이스
+│
+├── application/                   # 애플리케이션 레이어
+│   ├── user/
 │   │   ├── __init__.py
 │   │   ├── services.py            # UserService
 │   │   └── dtos.py                # Request/Response DTO
-│   ├── infrastructure/
-│   │   ├── __init__.py
-│   │   └── repository.py          # SQLAlchemy Repository 구현
-│   └── interface/
+│   └── auth/
 │       ├── __init__.py
-│       └── http/
-│           ├── __init__.py
-│           └── router.py          # /users 라우터
+│       ├── services.py            # AuthService
+│       └── dtos.py                # Request/Response DTO
 │
-├── auth/                          # Auth 도메인
-│   ├── domain/
+├── infrastructure/                # 인프라스트럭처 레이어
+│   ├── user/
 │   │   ├── __init__.py
-│   │   ├── entities.py            # RefreshToken 엔티티
-│   │   └── repository.py          # Repository 인터페이스
-│   ├── application/
-│   │   ├── __init__.py
-│   │   ├── services.py            # AuthService
-│   │   └── dtos.py                # Request/Response DTO
-│   ├── infrastructure/
-│   │   ├── __init__.py
-│   │   ├── repository.py          # Token Repository 구현
-│   │   └── jwt_handler.py         # JWT 토큰 처리
-│   └── interface/
+│   │   ├── models.py              # SQLAlchemy ORM 모델
+│   │   └── repository.py          # SQLAlchemy Repository 구현
+│   └── auth/
 │       ├── __init__.py
-│       └── http/
-│           ├── __init__.py
-│           ├── router.py          # /auth 라우터
-│           └── dependencies.py    # FastAPI Depends (인증)
+│       ├── jwt_handler.py         # JWT 토큰 처리
+│       └── repository.py          # Token Repository 구현
+│
+├── interface/                     # 인터페이스 레이어
+│   └── http/
+│       ├── __init__.py
+│       ├── routers/
+│       │   ├── __init__.py
+│       │   ├── user.py            # /users 라우터
+│       │   └── auth.py            # /auth 라우터
+│       └── dependencies.py        # FastAPI Depends (인증)
 │
 └── shared/                        # 공통 모듈
     ├── __init__.py
@@ -348,6 +351,11 @@ backend/app/
     ├── exceptions.py              # 공통 예외
     └── rate_limiter.py            # Rate Limiting 유틸리티
 ```
+
+**구조 선택 이유:**
+- 레이어별 의존성 관리가 명확함
+- 아키텍처 문서와 일치
+- 같은 레이어의 코드를 한 곳에서 찾을 수 있음
 
 ### 3.2 Frontend Structure (FSD)
 

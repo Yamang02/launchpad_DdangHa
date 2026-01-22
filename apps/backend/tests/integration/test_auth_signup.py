@@ -8,7 +8,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import select
 
 from app.shared.database import async_session_maker
-from app.user.infrastructure.models import UserModel
+from app.infrastructure.user.models import UserModel
 from main import app
 
 pytestmark = pytest.mark.integration

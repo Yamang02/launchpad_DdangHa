@@ -6,14 +6,14 @@ spec: 002-login-design — 로그인 서비스 로직
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.auth.application.dtos import LoginRequest, LoginResponse
-from app.auth.application.services import AuthService
+from app.application.auth.dtos import LoginRequest, LoginResponse
+from app.application.auth.services import AuthService
 from app.shared.exceptions import (
     InvalidCredentialsError,
     InactiveAccountError,
     SuspendedAccountError,
 )
-from app.user.domain.entities import User, UserStatus
+from app.domain.user.entities import User, UserStatus
 from app.shared.security import hash_password
 
 
@@ -155,7 +155,7 @@ async def test_login_updates_last_login_at(auth_service, mock_user_repository, a
 @pytest.mark.asyncio
 async def test_login_returns_valid_tokens(auth_service, mock_user_repository, active_user):
     """로그인 성공 시 유효한 Access Token 및 Refresh Token 반환"""
-    from app.auth.infrastructure.jwt_handler import verify_token, get_token_uid
+    from app.infrastructure.auth.jwt_handler import verify_token, get_token_uid
     
     mock_user_repository.get_by_email.return_value = active_user
     mock_user_repository.update_last_login = AsyncMock()

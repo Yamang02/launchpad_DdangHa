@@ -28,3 +28,19 @@ class SignupResponse(BaseModel):
     uid: str
     email: str
     nickname: str
+
+
+class LoginRequest(BaseModel):
+    """로그인 요청 DTO"""
+
+    email: EmailStr
+    password: str
+
+
+class LoginResponse(BaseModel):
+    """로그인 응답 DTO"""
+
+    access_token: str
+    refresh_token: str
+    token_type: str = "Bearer"
+    expires_in: int  # 초 단위 (예: 900 = 15분)

@@ -221,33 +221,32 @@
 apps/
 ├── backend/
 │   ├── app/
-│   │   ├── shared/
-│   │   │   ├── __init__.py
-│   │   │   ├── uid.py
-│   │   │   ├── security.py
-│   │   │   ├── database.py
-│   │   │   └── exceptions.py
-│   │   ├── user/
-│   │   │   ├── __init__.py
-│   │   │   ├── domain/
-│   │   │   │   ├── __init__.py
-│   │   │   │   ├── entities.py
-│   │   │   │   └── repository.py
-│   │   │   └── infrastructure/
+│   │   ├── domain/
+│   │   │   └── user/
+│   │   │       ├── __init__.py
+│   │   │       ├── entities.py
+│   │   │       └── repository.py
+│   │   ├── application/
+│   │   │   └── auth/
+│   │   │       ├── __init__.py
+│   │   │       ├── dtos.py
+│   │   │       └── services.py
+│   │   ├── infrastructure/
+│   │   │   └── user/
 │   │   │       ├── __init__.py
 │   │   │       ├── models.py
 │   │   │       └── repository.py
-│   │   └── auth/
+│   │   ├── interface/
+│   │   │   └── http/
+│   │   │       └── routers/
+│   │   │           ├── __init__.py
+│   │   │           └── auth.py
+│   │   └── shared/
 │   │       ├── __init__.py
-│   │       ├── application/
-│   │       │   ├── __init__.py
-│   │       │   ├── dtos.py
-│   │       │   └── services.py
-│   │       └── interface/
-│   │           ├── __init__.py
-│   │           └── http/
-│   │               ├── __init__.py
-│   │               └── router.py
+│   │       ├── uid.py
+│   │       ├── security.py
+│   │       ├── database.py
+│   │       └── exceptions.py
 │   ├── tests/
 │   │   ├── unit/
 │   │   │   ├── shared/
@@ -499,9 +498,9 @@ class SignupResponse(BaseModel):
 from app.shared.uid import generate_user_uid
 from app.shared.security import hash_password
 from app.shared.exceptions import DuplicateEmailError
-from app.user.domain.entities import User, UserStatus
-from app.user.domain.repository import UserRepository
-from app.auth.application.dtos import SignupRequest, SignupResponse
+from app.domain.user.entities import User, UserStatus
+from app.domain.user.repository import UserRepository
+from app.application.auth.dtos import SignupRequest, SignupResponse
 
 
 class AuthService:
@@ -556,8 +555,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError as PydanticValidationError
 
 from app.shared.exceptions import DuplicateEmailError, ValidationError
-from app.auth.application.dtos import SignupRequest, SignupResponse
-from app.auth.application.services import AuthService
+from app.application.auth.dtos import SignupRequest, SignupResponse
+from app.application.auth.services import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

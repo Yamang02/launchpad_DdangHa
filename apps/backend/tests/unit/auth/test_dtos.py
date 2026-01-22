@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from app.auth.application.dtos import SignupRequest, LoginRequest, LoginResponse
+from app.application.auth.dtos import SignupRequest, LoginRequest, LoginResponse
 
 
 def test_signup_request_valid():
