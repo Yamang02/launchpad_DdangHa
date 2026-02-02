@@ -57,12 +57,12 @@
 
 #### Phase 3: User Repository 확장
 
-- [ ] `apps/backend/app/domain/user/repository.py` 업데이트
-  - [ ] `UserRepository` Protocol에 메소드 추가:
-    - [ ] `update_last_login(uid: str) -> None`
-- [ ] `apps/backend/app/infrastructure/user/repository.py` 업데이트
-  - [ ] `SQLAlchemyUserRepository.update_last_login()` 구현
-    - [ ] `last_login_at`을 현재 시간(UTC)으로 업데이트
+- [x] `apps/backend/app/domain/user/repository.py` 업데이트
+  - [x] `UserRepository` Protocol에 메소드 추가:
+    - [x] `update_last_login(uid: str) -> None`
+- [x] `apps/backend/app/infrastructure/user/repository.py` 업데이트
+  - [x] `SQLAlchemyUserRepository.update_last_login()` 구현
+    - [x] `last_login_at`을 현재 시간(UTC)으로 업데이트
 
 #### Phase 4: Exceptions 확장
 
@@ -125,10 +125,10 @@
   - [x] `test_login_suspended_account` - 정지된 계정 로그인 실패
   - [x] `test_login_updates_last_login_at` - 로그인 성공 시 last_login_at 업데이트
   - [x] `test_login_returns_valid_tokens` - 유효한 토큰 반환 확인
-- [ ] `apps/backend/tests/unit/user/test_repository_protocol.py` 업데이트
-  - [ ] `update_last_login` 메소드 시그니처 확인
-- [ ] `apps/backend/tests/unit/user/test_sqlalchemy_user_repository.py` 업데이트
-  - [ ] `test_update_last_login` - `last_login_at` 업데이트 확인
+- [x] `apps/backend/tests/unit/user/test_repository_protocol.py` 업데이트
+  - [x] `update_last_login` 메소드 시그니처 확인
+- [x] `apps/backend/tests/unit/user/test_sqlalchemy_user_repository.py` 업데이트
+  - [x] `test_update_last_login` - `last_login_at` 업데이트 확인
 - [ ] `apps/backend/tests/unit/shared/test_exceptions.py` 업데이트
   - [ ] `InvalidCredentialsError` 테스트
   - [ ] `InactiveAccountError` 테스트
