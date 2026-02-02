@@ -21,7 +21,7 @@
 | 항목 | 상태 | 문제 |
 |------|------|------|
 | `docker-compose.yml` | postgres + backend만 등록 | frontend 미등록 |
-| Backend Dockerfile | 존재 | pip install 나열 방식, pyproject.toml 미활용, pyjwt 누락 |
+| Backend Dockerfile | 존재 | ~~pip install 나열 방식, pyproject.toml 미활용, pyjwt 누락~~ → 해결됨 |
 | Frontend Dockerfile | 존재 | dev 모드 전용, production build 미지원 |
 | `.dockerignore` | 없음 | 불필요한 파일이 이미지에 포함 |
 | 환경변수 | compose에 하드코딩 | env_file 미사용 |
@@ -33,7 +33,7 @@
 
 ### Phase 1: .dockerignore 추가
 
-- [ ] `apps/backend/.dockerignore`
+- [x] `apps/backend/.dockerignore`
   ```
   __pycache__/
   *.pyc
@@ -45,7 +45,7 @@
   .mypy_cache/
   .ruff_cache/
   ```
-- [ ] `apps/frontend/.dockerignore`
+- [x] `apps/frontend/.dockerignore`
   ```
   node_modules/
   dist/
@@ -58,33 +58,33 @@
 
 ### Phase 2: Backend Dockerfile 개선
 
-- [ ] Multi-stage build 적용
-- [ ] `pyproject.toml` 기반 의존성 설치 (`pip install .`)
-- [ ] Production CMD: `uvicorn main:app --host 0.0.0.0 --port 8000` (--reload 없음)
+- [x] Multi-stage build 적용
+- [x] `pyproject.toml` 기반 의존성 설치 (`pip install .`)
+- [x] Production CMD: `uvicorn main:app --host 0.0.0.0 --port 8000` (--reload 없음)
 
 ### Phase 3: Frontend Dockerfile 개선
 
-- [ ] Multi-stage build 적용 (build → nginx)
-- [ ] Production: nginx로 정적 파일 서빙
-- [ ] nginx.conf 작성 (SPA fallback, API proxy)
+- [x] Multi-stage build 적용 (build → nginx)
+- [x] Production: nginx로 정적 파일 서빙
+- [x] nginx.conf 작성 (SPA fallback, API proxy)
 
 ### Phase 4: 환경변수 외부화
 
-- [ ] `apps/backend/.env.example` 정비
-- [ ] `apps/frontend/.env.example` 생성
-- [ ] docker-compose에서 `env_file` 사용
+- [x] `apps/backend/.env.example` 정비
+- [x] `apps/frontend/.env.example` 생성
+- [x] docker-compose에서 `env_file` 사용
 
 ### Phase 5: docker-compose.yml 정비
 
-- [ ] frontend 서비스 추가
-- [ ] 네트워크 명시적 정의
-- [ ] backend, frontend healthcheck 추가
-- [ ] `postgres-test`를 profiles로 optional 처리
+- [x] frontend 서비스 추가
+- [x] 네트워크 명시적 정의
+- [x] backend, frontend healthcheck 추가
+- [x] `postgres-test`를 profiles로 optional 처리
 
 ### Phase 6: dev/prod 분리
 
-- [ ] `docker-compose.yml` — production 기본값
-- [ ] `docker-compose.override.yml` — dev 전용 (volume mount, --reload 등)
+- [x] `docker-compose.yml` — production 기본값
+- [x] `docker-compose.override.yml` — dev 전용 (volume mount, --reload 등)
 
 ---
 
@@ -115,6 +115,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     libpq5 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
@@ -129,23 +130,29 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ### 4.2 Frontend Dockerfile (Multi-stage)
 
+yarn workspaces 모노레포 — build context는 프로젝트 root.
+
 ```dockerfile
 # ===== Build =====
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock* ./
+COPY package.json yarn.lock ./
+COPY apps/frontend/package.json ./apps/frontend/
 RUN yarn install --frozen-lockfile
 
-COPY . .
+COPY apps/frontend ./apps/frontend
+WORKDIR /app/apps/frontend
 RUN yarn build
 
 # ===== Runtime =====
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN apk add --no-cache curl
+
+COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
+COPY apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
@@ -245,8 +252,8 @@ services:
 
   frontend:
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/frontend/Dockerfile
     container_name: app-frontend
     ports:
       - "3000:80"
@@ -279,14 +286,14 @@ services:
   backend:
     volumes:
       - ./apps/backend:/app
-    command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "(alembic upgrade head 2>/dev/null || true) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: apps/frontend/Dockerfile.dev
     volumes:
-      - ./apps/frontend:/app
+      - ./apps/frontend:/app/apps/frontend
       - /app/node_modules
     ports:
       - "3000:3000"
@@ -324,6 +331,18 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 
 ## 5. 실행 방법
 
+### 사전 준비
+```bash
+# docker-compose 변수 치환용 (postgres healthcheck 등)
+cp .env.example .env
+
+# 컨테이너 env
+cp apps/backend/.env.example apps/backend/.env
+
+# 필요시 .env 파일 수정 (POSTGRES_USER, POSTGRES_PASSWORD 등)
+# root .env와 apps/backend/.env의 POSTGRES_USER, POSTGRES_DB는 동일하게 유지
+```
+
 ### Production 모드
 ```bash
 docker compose up --build
@@ -352,6 +371,7 @@ docker compose --profile test up
 project-root/
 ├── docker-compose.yml              # production 기본값
 ├── docker-compose.override.yml     # dev 전용 (자동 merge)
+├── .env.example                   # compose 변수 치환용 (POSTGRES_USER, POSTGRES_DB)
 ├── apps/
 │   ├── backend/
 │   │   ├── Dockerfile              # multi-stage (builder → runtime)

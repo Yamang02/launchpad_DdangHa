@@ -1,56 +1,92 @@
+# ${POSTGRES_USER}, ${POSTGRES_DB} 등은 compose 변수 치환용.
+# env_file(컨테이너 env)가 아닌 root .env 또는 shell 환경변수에서 읽음.
+# 사전 준비: cp .env.example .env (design 문서 섹션 5 참고)
 services:
-  # PostgreSQL Database (로컬 개발용)
   postgres:
     image: postgres:15-alpine
-    container_name: ddangha-postgres
+    container_name: app-postgres
+    env_file:
+      - ./apps/backend/.env
     environment:
-      POSTGRES_USER: ddangha_user
-      POSTGRES_PASSWORD: ddangha_password
-      POSTGRES_DB: ddangha_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+      LANG: "C.UTF-8"
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddangha_user"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app_user} -d ${POSTGRES_DB:-app_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
-  # Backend API
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: app-postgres-test
+    profiles:
+      - test
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+      POSTGRES_DB: app_test
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+      LANG: "C.UTF-8"
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./apps/backend
       dockerfile: Dockerfile
-    container_name: ddangha-backend
+    container_name: app-backend
     ports:
       - "8000:8000"
-    environment:
-      - ENV=dev
-      - DATABASE_URL=postgresql://ddangha_user:ddangha_password@postgres:5432/ddangha_db
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-    volumes:
-      - ./apps/backend:/app
+    env_file:
+      - ./apps/backend/.env
     depends_on:
       postgres:
         condition: service_healthy
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
 
-  # Frontend
   frontend:
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
-    container_name: ddangha-frontend
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: app-frontend
     ports:
-      - "3000:3000"
-    volumes:
-      - ./apps/frontend:/app
-      - /app/node_modules
+      - "3000:80"
     depends_on:
-      - backend
-    environment:
-      - VITE_API_URL=http://localhost:8000
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  postgres_test_data:
+
+networks:
+  app-network:
+    driver: bridge

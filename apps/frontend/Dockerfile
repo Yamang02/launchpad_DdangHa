@@ -1,19 +1,25 @@
-FROM node:18-alpine
+# ===== Build =====
+# yarn workspaces 모노레포 — root context 필요
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Yarn 설치
-RUN apk add --no-cache yarn
-
-# 의존성 설치
-COPY package.json yarn.lock* ./
+COPY package.json yarn.lock ./
+COPY apps/frontend/package.json ./apps/frontend/
 RUN yarn install --frozen-lockfile
 
-# 애플리케이션 코드 복사
-COPY . .
+COPY apps/frontend ./apps/frontend
+WORKDIR /app/apps/frontend
+RUN yarn build
 
-# 포트 노출
-EXPOSE 3000
+# ===== Runtime =====
+FROM nginx:alpine
 
-# 개발 모드 실행
-CMD ["yarn", "dev", "--host", "0.0.0.0"]
+RUN apk add --no-cache curl
+
+COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
+COPY apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
