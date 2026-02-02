@@ -4,19 +4,19 @@ version = "0.1.0"
 description = "DdangHa Backend API"
 requires-python = ">=3.11"
 dependencies = [
-    "alembic>=1.13.0",
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
-    "sqlalchemy>=2.0.0",
-    "psycopg2-binary>=2.9.9",
+    "sqlalchemy[asyncio]>=2.0.0",
     "asyncpg>=0.29.0",
-    "bcrypt>=4.0.0",
-    "email-validator>=2.0.0",
+    "psycopg2-binary>=2.9.9",
     "python-dotenv>=1.0.0",
-    "python-ulid>=2.2.0",
     "pyjwt>=2.8.0",
+    "bcrypt>=4.1.0",
+    "python-ulid>=2.2.0",
+    "email-validator>=2.1.0",
+    "alembic>=1.13.0",
 ]
 
 [project.optional-dependencies]
@@ -53,7 +53,6 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

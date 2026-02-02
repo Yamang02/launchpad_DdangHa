@@ -1,13 +1,13 @@
+# ${POSTGRES_USER}, ${POSTGRES_DB} 등은 compose 변수 치환용.
+# env_file(컨테이너 env)가 아닌 root .env 또는 shell 환경변수에서 읽음.
+# 사전 준비: cp .env.example .env (design 문서 섹션 5 참고)
 services:
-  # PostgreSQL Database (로컬 개발용)
   postgres:
     image: postgres:15-alpine
-    container_name: ddangha-postgres
+    container_name: app-postgres
+    env_file:
+      - ./apps/backend/.env
     environment:
-      POSTGRES_USER: ddangha_user
-      POSTGRES_PASSWORD: ddangha_password
-      POSTGRES_DB: ddangha_db
-      # 한글 등 UTF-8 저장: init 시 인코딩 명시 (볼륨 최초 생성 때만 적용)
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
       LANG: "C.UTF-8"
     ports:
@@ -15,19 +15,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddangha_user -d ddangha_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
-  # PostgreSQL (테스트: pytest 통합 + Playwright E2E, 둘 다 ddangha_test 사용)
   postgres-test:
     image: postgres:15-alpine
-    container_name: ddangha-postgres-test
+    container_name: app-postgres-test
+    profiles:
+      - test
     environment:
-      POSTGRES_USER: ddangha_user
-      POSTGRES_PASSWORD: ddangha_password
-      POSTGRES_DB: ddangha_test
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+      POSTGRES_DB: app_test
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
       LANG: "C.UTF-8"
     ports:
@@ -35,30 +38,55 @@ services:
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddangha_user -d ddangha_test"]
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_test"]
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - app-network
 
-  # Backend API
   backend:
     build:
       context: ./apps/backend
       dockerfile: Dockerfile
-    container_name: ddangha-backend
+    container_name: app-backend
     ports:
       - "8000:8000"
-    environment:
-      - ENV=dev
-      - DATABASE_URL=postgresql://ddangha_user:ddangha_password@postgres:5432/ddangha_db
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-    volumes:
-      - ./apps/backend:/app
+    env_file:
+      - ./apps/backend/.env
     depends_on:
       postgres:
         condition: service_healthy
-    command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: app-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
   postgres_test_data:
+
+networks:
+  app-network:
+    driver: bridge

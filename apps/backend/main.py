@@ -2,11 +2,17 @@
 DdangHa Backend API
 FastAPI application entry point
 """
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.interface.http.routers.auth import router as auth_router
-from app.interface.http.routers._spec import router as spec_router
+load_dotenv()
+
+_ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS")
+if not _ALLOWED_ORIGINS:
+    raise ValueError("ALLOWED_ORIGINS environment variable is required")
 
 app = FastAPI(
     title="DdangHa API",
@@ -14,17 +20,14 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS 설정 (로컬 개발용)
+# CORS 설정 (ALLOWED_ORIGINS env 필수)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[o.strip() for o in _ALLOWED_ORIGINS.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(spec_router, prefix="/api/v1")
-app.include_router(auth_router, prefix="/api/v1")
 
 
 @app.get("/")

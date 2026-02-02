@@ -1,0 +1,17 @@
+# Dev 전용 — docker compose up 시 자동 merge됨
+services:
+  backend:
+    volumes:
+      - ./apps/backend:/app
+    command: sh -c "(alembic upgrade head 2>/dev/null || true) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile.dev
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: yarn dev --host 0.0.0.0
